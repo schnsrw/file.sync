@@ -43,3 +43,6 @@ mvn clean install
 
 # Run app
 ./mvnw spring-boot:run
+```
+
+For details about available REST endpoints see [docs/api-reference.md](docs/api-reference.md).
