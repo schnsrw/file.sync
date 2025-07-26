@@ -43,3 +43,25 @@ mvn clean install
 
 # Run app
 ./mvnw spring-boot:run
+```
+
+## 🎯 Project Goals
+
+- **Application Storage**: users can store files in the application's default storage
+  backend.
+- **Workspace Management**: any user can create a workspace. The creator becomes
+  the workspace admin and can manage storages and user permissions within it.
+- **User Management**: workspace admins can add or remove members and adjust
+  their rights on storage locations.
+- **Pluggable Storage Types**: beyond the default storage, workspaces can attach
+  custom storage locations. Supported types include local folders, FTP/SCP remote
+  servers, S3-compatible buckets (via signed URLs), and generic blob storage.
+- **Groups Inside Workspaces**: admins can organize members into groups to grant
+  or restrict access to folders.
+- **Chat**: users can chat one‑on‑one with others in their roster and share files;
+  workspace chats enable group conversations via WebSocket.
+
+## 🔮 Future Plans
+
+- Collaborative editing through Collabora Online integration.
+- File versioning with configurable retention per storage.
