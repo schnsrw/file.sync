@@ -13,7 +13,10 @@
             if (parentId) params.append('parentId', parentId);
             const resp = await fetch('/folder', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
                 body: params
             });
             const json = await resp.json();

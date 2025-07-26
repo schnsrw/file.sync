@@ -12,7 +12,10 @@
             const body = { storageName, basePath, storageType };
             const resp = await fetch('/storage', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
                 body: JSON.stringify(body)
             });
             const json = await resp.json();
