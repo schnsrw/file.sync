@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Data
@@ -17,11 +17,11 @@ import java.util.UUID;
 @Builder
 public class UserRights {
     @Id
-    private UUID urId;
+    private String urId;
 
-    private UUID userId;
-    private UUID fileId;
-    private UUID parentFolderId;
+    private String userId;
+    private String fileId;
+    private String parentFolderId;
 
     private String rightsType; // READ / WRITE / ADMIN
     private String resourceType; // FILE / FOLDER
