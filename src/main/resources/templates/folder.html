@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Folder</title>
+    <script>
+        async function createFolder(event) {
+            event.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const parentId = document.getElementById('parentId').value;
+            const params = new URLSearchParams();
+            params.append('userId', userId);
+            if (parentId) params.append('parentId', parentId);
+            const resp = await fetch('/folder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            });
+            const json = await resp.json();
+            document.getElementById('result').textContent = JSON.stringify(json, null, 2);
+        }
+    </script>
+</head>
+<body>
+<h2>Create Folder</h2>
+<form onsubmit="createFolder(event)">
+    <label>User ID: <input id="userId" type="text" required></label><br>
+    <label>Parent Folder ID: <input id="parentId" type="text"></label><br>
+    <button type="submit">Create</button>
+</form>
+<pre id="result"></pre>
+<p><a th:href="@{/ui}">Back</a></p>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Storage</title>
+    <script>
+        async function createStorage(event) {
+            event.preventDefault();
+            const storageName = document.getElementById('storageName').value;
+            const basePath = document.getElementById('basePath').value;
+            const storageType = document.getElementById('storageType').value;
+            const body = { storageName, basePath, storageType };
+            const resp = await fetch('/storage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const json = await resp.json();
+            document.getElementById('result').textContent = JSON.stringify(json, null, 2);
+        }
+    </script>
+</head>
+<body>
+<h2>Create Storage</h2>
+<form onsubmit="createStorage(event)">
+    <label>Name: <input id="storageName" type="text" required></label><br>
+    <label>Base Path: <input id="basePath" type="text" required></label><br>
+    <label>Type: <input id="storageType" type="text" required></label><br>
+    <button type="submit">Create</button>
+</form>
+<pre id="result"></pre>
+<p><a th:href="@{/ui}">Back</a></p>
+</body>
+</html>

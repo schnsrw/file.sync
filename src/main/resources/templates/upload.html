@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload File</title>
+    <script>
+        async function upload(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('file');
+            const userId = document.getElementById('userId').value;
+            const storageId = document.getElementById('storageId').value;
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('userId', userId);
+            formData.append('storageId', storageId);
+            const resp = await fetch('/file/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const json = await resp.json();
+            document.getElementById('result').textContent = JSON.stringify(json, null, 2);
+        }
+    </script>
+</head>
+<body>
+<h2>Upload File</h2>
+<form onsubmit="upload(event)">
+    <label>User ID: <input id="userId" type="text" required></label><br>
+    <label>Storage ID: <input id="storageId" type="text" required></label><br>
+    <input id="file" type="file" required><br>
+    <button type="submit">Upload</button>
+</form>
+<pre id="result"></pre>
+<p><a th:href="@{/ui}">Back</a></p>
+</body>
+</html>
