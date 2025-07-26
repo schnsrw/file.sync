@@ -44,6 +44,29 @@ This document outlines the core entities and relationships modeled in the File M
 - `timestamp`: Timestamp
 - `status`: String
 
+### 7. **Storage**
+- `id`: UUID (Primary Key)
+- `storage_name`: String
+- `base_path`: String
+- `storage_type`: String (e.g., S3, LOCAL)
+- `access_key`: String
+- `access_id`: String
+- `is_active`: Boolean
+- `created_on`: Timestamp
+- `updated_on`: Timestamp
+
+### 8. **UserRights**
+- `id`: UUID (Primary Key)
+- `user_id`: FK → `User.id`
+- `file_id`: FK → `File.id`
+- `parent_folder_id`: FK → `Folder.id`
+- `rights_type`: String (READ, WRITE, ADMIN)
+- `resource_type`: String (FILE, FOLDER)
+- `is_favourite`: Boolean
+- `is_active`: Boolean
+- `created_on`: Timestamp
+- `updated_on`: Timestamp
+
 ## 🔗 Relationships
 
 - **User ↔ Role**: Many-to-Many via `UserRole`
@@ -52,6 +75,9 @@ This document outlines the core entities and relationships modeled in the File M
 - **Folder ↔ Folder**: Recursive relationship for nesting
 - **User ↔ AuditLog**: One-to-Many (Logs actions by users)
 - **File ↔ AuditLog**: One-to-Many
+- **Storage ↔ File**: One-to-Many (Storage locations contain many files)
+- **User ↔ UserRights**: One-to-Many (Access entries per user)
+- **File/Folder ↔ UserRights**: One-to-Many (Permissions for resources)
 
 ## 🗂 Storage Strategy
 
