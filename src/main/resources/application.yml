@@ -22,3 +22,7 @@ logging:
   level:
     root: INFO
     com.example.filemanager: DEBUG
+
+storage:
+  local:
+    base-path: files
