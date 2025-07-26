@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
+import in.lazygod.util.SnowflakeIdGenerator;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,6 +27,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SnowflakeIdGenerator idGenerator;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
@@ -60,7 +61,7 @@ public class AuthController {
         }
 
         User user = User.builder()
-                .userId(UUID.randomUUID())
+                .userId(idGenerator.nextId())
                 .username(request.getUsername())
                 .fullName(request.getFullName())
                 .email(request.getEmail()) // placeholder

@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Data
@@ -18,9 +18,9 @@ import java.util.UUID;
 @Builder
 public class Folder {
     @Id
-    private UUID folderId;
+    private String folderId;
 
-    private UUID parentFolder;
+    private String parentFolder;
     private boolean isActive;
 
     private LocalDateTime createdOn;

@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Data
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(name = "app_user")
 public class User {
     @Id
-    private UUID userId;
+    private String userId;
 
     @Column(unique = true, nullable = false)
     private String username;

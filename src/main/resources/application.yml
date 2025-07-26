@@ -26,3 +26,6 @@ logging:
 storage:
   local:
     base-path: files
+
+snowflake:
+  node-id: 1

@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
 
 @Entity
 @Data
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Builder
 public class Storage {
     @Id
-    private UUID storageId;
+    private String storageId;
 
     private String storageName;
     private String basePath;
