@@ -9,14 +9,14 @@ import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.SessionWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Component
@@ -24,8 +24,8 @@ import java.util.concurrent.Executors;
 public class MainWebSocketHandler extends TextWebSocketHandler {
 
     private final HandlerRegistry registry;
+    private final @Qualifier("wsExecutor") Executor executor;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final ExecutorService executor = Executors.newFixedThreadPool(10);
 
     static {
         HandlerInitializer.registerAll();
@@ -38,8 +38,11 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        SessionWrapper wrapper = UserSessionManager.getInstance().register(session); // ensures wrapper exists
-        if (wrapper == null) return;
+        SessionWrapper wrapper = UserSessionManager.getInstance().find(session);
+        if (wrapper == null) {
+            wrapper = UserSessionManager.getInstance().register(session);
+            if (wrapper == null) return;
+        }
 
         Packet packet = mapper.readValue(message.getPayload(), Packet.class);
         WsMessageHandler handler = registry.get(packet.getType());
@@ -49,7 +52,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        executor.submit(() -> {
+        executor.execute(() -> {
             try {
                 handler.handle(wrapper, packet.getPayload());
             } catch (Exception e) {
