@@ -1,6 +1,5 @@
-package in.lazygod.websocket;
+package in.lazygod.websocket.handlers;
 
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,16 +7,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Registry maintaining mapping between message types and their handlers.
  */
-@Component
 public class HandlerRegistry {
 
+    private static final HandlerRegistry INSTANCE = new HandlerRegistry();
     private final Map<String, WsMessageHandler> handlers = new ConcurrentHashMap<>();
 
-    /**
-     * Register a handler for a specific type.
-     *
-     * @param handler handler instance
-     */
+    public static HandlerRegistry getInstance() {
+        return INSTANCE;
+    }
+
     public void register(WsMessageHandler handler) {
         handlers.put(handler.type(), handler);
     }
