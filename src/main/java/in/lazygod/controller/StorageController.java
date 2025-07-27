@@ -1,7 +1,6 @@
 package in.lazygod.controller;
 
 import in.lazygod.models.Storage;
-import in.lazygod.models.User;
 import in.lazygod.service.StorageManagementService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +24,14 @@ public class StorageController {
 
     @PostMapping
     public ResponseEntity<Storage> createStorage(@RequestBody Storage storage) {
-        // Owner is currently fetched via the provided owner_id field
-        User owner = storage.getOwner();
-        Storage saved = storageManagementService.createStorage(storage, owner);
+        Storage saved = storageManagementService.createStorage(storage);
         log.info("Created storage {}", saved.getStorageId());
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping
-    public ResponseEntity<java.util.List<Storage>> listStorages(@RequestBody User user) {
-        var list = storageManagementService.listStorages(user);
+    public ResponseEntity<java.util.List<Storage>> listStorages() {
+        var list = storageManagementService.listStorages();
         return ResponseEntity.ok(list);
     }
 }
