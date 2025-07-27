@@ -35,7 +35,7 @@ public class AuthService {
     public User register(@RequestBody RegisterRequest request) {
         Optional<User> existing = userRepository.findByUsername(request.getUsername());
         if (existing.isPresent()) {
-            throw new RuntimeException("User already exists");
+            throw new in.lazygod.exception.BadRequestException("user.exists");
         }
 
         User user = User.builder()
@@ -66,7 +66,8 @@ public class AuthService {
     @Transactional
     public AuthResponse verifyUser(String userId, VerificationRequest request) {
 
-        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("user.not.found"));
 
         if(passwordEncoder.matches(request.getVerificationCode(), user.getVerificationCode())){
             user.setVerification(Verification.VERIFIED);
@@ -84,6 +85,6 @@ public class AuthService {
             return generateTokens(user);
         }
 
-        throw new RuntimeException("Verification failed ! incorrect verification code");
+        throw new in.lazygod.exception.BadRequestException("verification.failed");
     }
 }

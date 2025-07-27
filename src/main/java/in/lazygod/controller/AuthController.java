@@ -44,7 +44,8 @@ public class AuthController {
         if (!jwtUtil.validateToken(request.refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User user = userRepository.findByUsername(username).orElseThrow(()->new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("user.not.found"));
         return ResponseEntity.ok(authService.generateTokens(user));
     }
 
