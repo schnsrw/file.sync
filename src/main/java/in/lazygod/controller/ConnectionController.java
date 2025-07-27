@@ -3,7 +3,9 @@ package in.lazygod.controller;
 import in.lazygod.models.Connection;
 import in.lazygod.service.ConnectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,11 @@ public class ConnectionController {
     @PostMapping("/{id}/accept")
     public ResponseEntity<Connection> accept(@PathVariable("id") String id) {
         return ResponseEntity.ok(connectionService.acceptRequest(id));
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<Connection> reject(@PathVariable("id") String id) {
+        return ResponseEntity.ok(connectionService.rejectRequest(id));
     }
 
     @GetMapping("/pending")

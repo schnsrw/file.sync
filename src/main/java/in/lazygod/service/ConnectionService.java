@@ -59,13 +59,35 @@ public class ConnectionService {
             throw new in.lazygod.exception.ForbiddenException("not.authorized");
         }
 
-        connection.setStatus(ConnectionStatus.ACCEPTED);
+        connection.setStatus(ConnectionStatus.REJECTED);
         connection.setUpdatedOn(LocalDateTime.now());
         connectionRepository.save(connection);
 
         // notify requester if online
         userRepository.findById(connection.getFromUserId()).ifPresent(fromUser ->
                 NotificationHandler.send(fromUser.getUsername(), current.getUsername(), "connection-accepted", null)
+        );
+
+        return connection;
+    }
+
+    @Transactional
+    public Connection rejectRequest(String connectionId) {
+        User current = SecurityContextHolderUtil.getCurrentUser();
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("connection.not.found"));
+
+        if (!connection.getToUserId().equals(current.getUserId())) {
+            throw new in.lazygod.exception.ForbiddenException("not.authorized");
+        }
+
+        connection.setStatus(ConnectionStatus.ACCEPTED);
+        connection.setUpdatedOn(LocalDateTime.now());
+        connectionRepository.save(connection);
+
+        // notify requester if online
+        userRepository.findById(connection.getFromUserId()).ifPresent(fromUser ->
+                NotificationHandler.send(fromUser.getUsername(), current.getUsername(), "connection-rejected", null)
         );
 
         return connection;
