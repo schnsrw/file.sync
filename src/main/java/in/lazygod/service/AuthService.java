@@ -28,7 +28,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SnowflakeIdGenerator idGenerator;
-    private final JwtUtil jwtUtil;
     private final FolderRepository folderRepository;
 
 
@@ -57,8 +56,8 @@ public class AuthService {
     }
 
     public AuthResponse generateTokens(User user){
-        String token = jwtUtil.generateToken(user.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+        String token = JwtUtil.generateToken(user.getUsername());
+        String refreshToken = JwtUtil.generateRefreshToken(user.getUsername());
 
         return new AuthResponse(token, refreshToken);
     }

@@ -9,6 +9,8 @@ import in.lazygod.repositories.FolderRepository;
 import in.lazygod.repositories.StorageRepository;
 import in.lazygod.repositories.UserRepository;
 import in.lazygod.repositories.UserRightsRepository;
+import in.lazygod.security.JwtUtil;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -70,8 +72,19 @@ public class FileManagerApplication implements ApplicationRunner {
     @Value("${system.admin.password}")
     private String rawPassword;
 
+    @Value("${jwt.secret}")
+    private String jwtKey;
+
+    @Value("${jwt.expiration.hr}")
+    private long jwtExpirationHr;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
+        JwtUtil.SECRET_KEY = jwtKey ;
+        JwtUtil.EXPIRATION = jwtExpirationHr * 1000 * 60 * 60;
+        JwtUtil.key = Keys.hmacShaKeyFor(JwtUtil.SECRET_KEY.getBytes());
+
         Optional<User> existing = userRepository.findByUsername(username);
 
         User admin = existing.orElseGet(() -> {
