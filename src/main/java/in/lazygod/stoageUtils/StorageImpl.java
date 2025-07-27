@@ -1,4 +1,4 @@
-package in.lazygod.service;
+package in.lazygod.stoageUtils;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,7 +9,7 @@ import java.io.IOException;
  * General contract for file storage operations. Implementations may store
  * files on local disk, S3 or any remote server.
  */
-public interface StorageService {
+public interface StorageImpl {
 
     /**
      * Upload a file to a specific location.

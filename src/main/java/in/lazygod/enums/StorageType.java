@@ -5,5 +5,6 @@ package in.lazygod.enums;
  */
 public enum StorageType {
     LOCAL,
-    S3
+    S3,
+    MEMORY
 }

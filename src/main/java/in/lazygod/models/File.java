@@ -1,6 +1,7 @@
 package in.lazygod.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -28,6 +29,7 @@ public class File {
 
     private String displayName;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "storage_id", nullable = false)
     private Storage storage;

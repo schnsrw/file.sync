@@ -1,6 +1,7 @@
 package in.lazygod.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import in.lazygod.enums.StorageType;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,9 @@ public class Storage {
     private LocalDateTime createdOn;
     private LocalDateTime updatedOn;
 
+    @JsonIgnore
     private String accessKey;
+
+    @JsonIgnore
     private String accessId;
 }

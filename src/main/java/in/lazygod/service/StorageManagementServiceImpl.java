@@ -1,13 +1,11 @@
-package in.lazygod.service.impl;
+package in.lazygod.service;
 
 import in.lazygod.models.Storage;
 import in.lazygod.models.User;
 import in.lazygod.repositories.StorageRepository;
-import in.lazygod.service.StorageManagementService;
 import in.lazygod.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,20 +21,12 @@ public class StorageManagementServiceImpl implements StorageManagementService {
 
     private final StorageRepository storageRepository;
     private final SnowflakeIdGenerator idGenerator;
-    @Value("${storage.local.base-path}")
-    private String defaultBasePath;
 
     @Override
     public Storage createStorage(Storage storage, User owner) {
         log.info("Creating storage {} for user {}", storage.getStorageName(), owner.getUserId());
         storage.setStorageId(idGenerator.nextId());
         storage.setOwner(owner);
-        if (storage.getBasePath() == null) {
-            storage.setBasePath(defaultBasePath);
-        }
-        if (storage.getStorageType() == null) {
-            storage.setStorageType(in.lazygod.enums.StorageType.LOCAL);
-        }
         storage.setCreatedOn(LocalDateTime.now());
         storage.setUpdatedOn(LocalDateTime.now());
         storage.setActive(true);

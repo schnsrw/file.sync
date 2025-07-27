@@ -10,6 +10,8 @@ import in.lazygod.repositories.FileRepository;
 import in.lazygod.repositories.FolderRepository;
 import in.lazygod.repositories.UserRightsRepository;
 import in.lazygod.security.SecurityContextHolderUtil;
+import in.lazygod.stoageUtils.StorageFactory;
+import in.lazygod.stoageUtils.StorageImpl;
 import in.lazygod.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileService {
 
-    private final StorageService storageService;
     private final FileRepository fileRepository;
     private final UserRightsRepository rightsRepository;
     private final ActivityLogRepository activityRepository;
@@ -34,7 +35,7 @@ public class FileService {
     private final FolderRepository folderRepository;
 
     @Transactional
-    public File upload(MultipartFile file, String folderId){
+    public File upload(MultipartFile file, String folderId) throws IOException {
 
         User user = SecurityContextHolderUtil.getCurrentUser();
 
@@ -53,8 +54,8 @@ public class FileService {
         String fileId = idGenerator.nextId();
         String path = folder.getStorage().getBasePath() + "/" + fileId;
 
-       // todo add default storage option and uplaod via it
- //        storageService.upload(file, path);
+        StorageImpl storageImpl = StorageFactory.getStorageImpl(folder.getStorage());
+        storageImpl.upload(file,path);
 
         File entity = File.builder()
                 .fileId(fileId)
@@ -126,7 +127,8 @@ public class FileService {
                 .timestamp(LocalDateTime.now())
                 .build());
 
-        return new FileResponse(file.getDisplayName(), storageService.download(file.getPath()));
+        StorageImpl storageImpl = StorageFactory.getStorageImpl(file.getStorage());
+        return new FileResponse(file.getDisplayName(), storageImpl.download(file.getPath()));
     }
 
     @Transactional
