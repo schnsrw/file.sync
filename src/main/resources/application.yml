@@ -25,6 +25,11 @@ logging:
     root: INFO
     in.lazygod: DEBUG
 
+jwt:
+  secret : YourSecretKeyHereYourSecretKeyHere
+  expiration:
+    hr: 10
+
 storage:
   id: default-local
   type: LOCAL

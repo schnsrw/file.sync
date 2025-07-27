@@ -52,9 +52,10 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
+        SessionWrapper finalWrapper = wrapper;
         executor.execute(() -> {
             try {
-                handler.handle(wrapper, packet.getPayload());
+                handler.handle(finalWrapper, packet.getPayload());
             } catch (Exception e) {
                 log.error("Error in handler: {}", e.getMessage());
             }

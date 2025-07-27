@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -24,7 +23,6 @@ public class AuthController {
     private final AuthenticationManager authManager;
     private final AuthService authService;
     private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
 
 
     @PostMapping("/login")
@@ -40,8 +38,8 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
-        String username = jwtUtil.extractUsername(request.refreshToken);
-        if (!jwtUtil.validateToken(request.refreshToken)) {
+        String username = JwtUtil.extractUsername(request.refreshToken);
+        if (!JwtUtil.validateToken(request.refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         User user = userRepository.findByUsername(username)

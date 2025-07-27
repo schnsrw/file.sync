@@ -2,16 +2,18 @@ package in.lazygod.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.Setter;
 
 import java.security.Key;
 import java.util.Date;
 
-
+@Setter
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "YourSecretKeyHereYourSecretKeyHere";
-    private static final long EXPIRATION = 1000 * 60 * 60 * 10; // 10 hours
-    private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    public static String SECRET_KEY ;
+
+    public static long EXPIRATION;
+    public static Key key;
 
     public static String generateToken(String username) {
         Date now = new Date();
