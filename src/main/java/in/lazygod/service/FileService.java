@@ -40,15 +40,15 @@ public class FileService {
         User user = SecurityContextHolderUtil.getCurrentUser();
 
         Folder folder = folderId==null || folderId.isBlank() ?
-                folderRepository.findById(user.getUsername()).orElseThrow(()-> new RuntimeException("Folder not found") )
-                :folderRepository.findById(folderId).orElseThrow(()-> new RuntimeException("Folder not found") );
+                folderRepository.findById(user.getUsername()).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found") )
+                :folderRepository.findById(folderId).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found") );
 
         UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), folder.getFolderId(), ResourceType.FOLDER)
-                .orElseThrow(() -> new RuntimeException("Resource not authorized"));
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
         if (!folderRight.getRightsType().equals(FileRights.ADMIN)
                 && !folderRight.getRightsType().equals(FileRights.WRITE)) {
-            throw new RuntimeException("Action not authorized");
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
         }
 
         String fileId = idGenerator.nextId();
@@ -115,10 +115,11 @@ public class FileService {
     public FileResponse download(String fileId) throws IOException {
         User user = SecurityContextHolderUtil.getCurrentUser();
 
-        File file = fileRepository.findById(fileId).orElseThrow(()-> new RuntimeException("Resource not found"));
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
 
         UserRights rights = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), file.getFileId(), ResourceType.FILE)
-                .orElseThrow(()->new RuntimeException("Resource not authorized"));
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
         activityRepository.save(ActivityLog.builder()
                 .activityId(idGenerator.nextId())
