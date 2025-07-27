@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface StorageManagementService {
 
-    Storage createStorage(Storage storage, User owner);
+    Storage createStorage(Storage storage);
 
-    List<Storage> listStorages(User owner);
+    List<Storage> listStorages();
 }

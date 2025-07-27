@@ -9,14 +9,18 @@ import in.lazygod.models.Folder;
 import in.lazygod.models.User;
 import in.lazygod.models.UserRights;
 import in.lazygod.repositories.ActivityLogRepository;
+import in.lazygod.repositories.FileRepository;
 import in.lazygod.repositories.FolderRepository;
 import in.lazygod.repositories.UserRightsRepository;
+import in.lazygod.dto.FolderContent;
 import in.lazygod.security.SecurityContextHolderUtil;
 import in.lazygod.util.SnowflakeIdGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +31,7 @@ import java.util.List;
 public class FolderService {
 
     private final FolderRepository folderRepository;
+    private final FileRepository fileRepository;
     private final UserRightsRepository rightsRepository;
     private final ActivityLogRepository activityRepository;
     private final SnowflakeIdGenerator idGenerator;
@@ -124,5 +129,36 @@ public class FolderService {
                 .targetId(folderId)
                 .timestamp(LocalDateTime.now())
                 .build());
+    }
+
+    @Transactional
+    public FolderContent listContents(String folderId, int page, int size) {
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        String targetId = (folderId == null || folderId.isBlank()) ? user.getUsername() : folderId;
+
+        Folder folder = folderRepository.findById(targetId)
+                .orElseThrow(() -> new RuntimeException("Folder not found"));
+
+        rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folder.getFolderId())
+                .orElseThrow(() -> new RuntimeException("Resource not authorized"));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Fetch sub-folders visible to user
+        var allSubFolders = folderRepository.findByParentFolder(folder);
+        var accessibleFolders = allSubFolders.stream()
+                .filter(f -> rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), f.getFolderId()).isPresent())
+                .skip((long) page * size)
+                .limit(size)
+                .toList();
+
+        // Fetch files via rights table
+        var fileRights = rightsRepository
+                .findAllByUserIdAndParentFolderIdAndResourceType(user.getUserId(), folder.getFolderId(), ResourceType.FILE, pageable);
+        var fileIds = fileRights.getContent().stream().map(UserRights::getFileId).toList();
+        var files = fileRepository.findAllById(fileIds);
+
+        return new FolderContent(accessibleFolders, files);
     }
 }

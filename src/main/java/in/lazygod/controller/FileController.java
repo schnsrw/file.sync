@@ -6,10 +6,10 @@ import in.lazygod.service.FileService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,13 +32,18 @@ public class FileController {
     }
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> download(@PathVariable("id") String fileId) throws IOException {
+    public ResponseEntity<StreamingResponseBody> download(@PathVariable("id") String fileId) throws IOException {
 
         FileResponse resource = fileService.download(fileId);
+        StreamingResponseBody body = outputStream -> {
+            try (var in = resource.getResource().getInputStream()) {
+                in.transferTo(outputStream);
+            }
+        };
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getDisplayName())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource.getResource());
+                .body(body);
     }
 
     @PostMapping("/{id}/favourite")
