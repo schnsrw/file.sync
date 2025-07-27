@@ -1,6 +1,7 @@
 package in.lazygod.controller;
 
 import in.lazygod.models.Folder;
+import in.lazygod.dto.FolderContent;
 import in.lazygod.service.FolderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,12 @@ public class FolderController {
                                           @RequestParam boolean fav) {
         folderService.markFavourite(folderId, fav);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<FolderContent> list(@RequestParam(required = false) String folderId,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(folderService.listContents(folderId, page, size));
     }
 }

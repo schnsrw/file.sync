@@ -35,6 +35,11 @@ public class File {
     @JoinColumn(name = "storage_id", nullable = false)
     private Storage storage;
 
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Folder parentFolder;
+
     private long fileSize;
 
     private String version;
