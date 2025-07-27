@@ -3,6 +3,7 @@ package in.lazygod.controller;
 import in.lazygod.dto.FileResponse;
 import in.lazygod.models.File;
 import in.lazygod.service.FileService;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -22,9 +23,10 @@ public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping("/upload")
-    public ResponseEntity<File> upload(@RequestParam("file") MultipartFile file,
-                                       @RequestParam(required = false) String folderId) throws IOException {
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<File> upload(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String folderId) throws IOException {
 
         return ResponseEntity.ok(fileService.upload(file, folderId));
     }

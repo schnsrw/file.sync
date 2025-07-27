@@ -23,6 +23,7 @@ public class File {
     @Id
     private String fileId;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

@@ -43,7 +43,7 @@ public class FileService {
                 folderRepository.findById(user.getUsername()).orElseThrow(()-> new RuntimeException("Folder not found") )
                 :folderRepository.findById(folderId).orElseThrow(()-> new RuntimeException("Folder not found") );
 
-        UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), folderId, ResourceType.FOLDER)
+        UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), folder.getFolderId(), ResourceType.FOLDER)
                 .orElseThrow(() -> new RuntimeException("Resource not authorized"));
 
         if (!folderRight.getRightsType().equals(FileRights.ADMIN)

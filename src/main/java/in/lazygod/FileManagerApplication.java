@@ -1,12 +1,14 @@
 package in.lazygod;
 
-import in.lazygod.enums.Role;
-import in.lazygod.enums.StorageType;
-import in.lazygod.enums.Verification;
+import in.lazygod.enums.*;
+import in.lazygod.models.Folder;
 import in.lazygod.models.Storage;
 import in.lazygod.models.User;
+import in.lazygod.models.UserRights;
+import in.lazygod.repositories.FolderRepository;
 import in.lazygod.repositories.StorageRepository;
 import in.lazygod.repositories.UserRepository;
+import in.lazygod.repositories.UserRightsRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -29,13 +31,19 @@ public class FileManagerApplication implements ApplicationRunner {
     private final UserRepository userRepository;
     private final StorageRepository storageRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FolderRepository folderRepository;
+    private final UserRightsRepository rightsRepository;
 
     public FileManagerApplication(UserRepository userRepository,
                                   StorageRepository storageRepository,
-                                  PasswordEncoder passwordEncoder) {
+                                  PasswordEncoder passwordEncoder,
+                                  FolderRepository folderRepository,
+                                  UserRightsRepository rightsRepository) {
         this.userRepository = userRepository;
         this.storageRepository = storageRepository;
         this.passwordEncoder = passwordEncoder;
+        this.folderRepository =folderRepository;
+        this.rightsRepository =rightsRepository;
     }
 
     @Value("${storage.type}")
@@ -99,5 +107,33 @@ public class FileManagerApplication implements ApplicationRunner {
 
             DEFAULT_STORAGE = storageRepository.save(storage);
         }
+
+        Optional<Folder> baseFolder = folderRepository.findById(username);
+
+        Folder folder = baseFolder.orElseGet(() -> {
+            Folder folderBase= Folder.builder()
+                    .folderId(admin.getUsername())
+                    .isActive(true)
+                    .storage(FileManagerApplication.DEFAULT_STORAGE)
+                    .updatedOn(LocalDateTime.now())
+                    .createdOn(LocalDateTime.now())
+                    .build();
+            folderBase =  folderRepository.save(folderBase);
+
+            rightsRepository.save(UserRights.builder()
+                    .urId(folderBase.getFolderId())
+                    .userId(admin.getUserId())
+                    .fileId(folderBase.getFolderId())
+                    .rightsType(FileRights.ADMIN)
+                    .resourceType(ResourceType.FOLDER)
+                    .isFavourite(false)
+                    .isActive(true)
+                    .createdOn(LocalDateTime.now())
+                    .updatedOn(LocalDateTime.now())
+                    .build());
+            return folderBase;
+        });
+
+
     }
 }
