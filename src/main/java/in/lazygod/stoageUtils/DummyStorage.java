@@ -18,7 +18,15 @@ public class DummyStorage implements StorageImpl {
 
     @Override
     public void upload(MultipartFile file, String destinationPath) throws IOException {
-        store.put(destinationPath, file.getBytes());
+        try (var in = file.getInputStream();
+             var out = new java.io.ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            store.put(destinationPath, out.toByteArray());
+        }
     }
 
     @Override

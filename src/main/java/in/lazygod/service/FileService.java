@@ -62,6 +62,7 @@ public class FileService {
                 .owner(user)
                 .displayName(file.getOriginalFilename())
                 .storage(folder.getStorage())
+                .parentFolder(folder)
                 .fileSize(file.getSize())
                 .version("1")
                 .path(path)
@@ -95,6 +96,7 @@ public class FileService {
                     .urId(idGenerator.nextId())
                     .userId(right.getUserId())
                     .fileId(file.getFileId())
+                    .parentFolderId(folder.getFolderId())
                     .rightsType(
                             right.getUserId().equals(user.getUserId()) ?(right.getRightsType() == FileRights.ADMIN)
                                     ? FileRights.ADMIN :FileRights.WRITE :  right.getRightsType())
