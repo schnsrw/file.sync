@@ -21,11 +21,21 @@ spring:
 logging:
   level:
     root: INFO
-    com.example.filemanager: DEBUG
+    in.lazygod: DEBUG
 
 storage:
+  id: default-local
+  type: LOCAL
+  access_id :
+  access_key :
   local:
-    base-path: files
+    base-path: /Users/sachin/IdeaProjects/filemanager/dummy_storage
+
+system:
+  admin:
+    username: admin
+    email: admin@example.com
+    password: admin123
 
 snowflake:
   node-id: 1

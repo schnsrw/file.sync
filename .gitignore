@@ -12,6 +12,8 @@ target/
 *.iml
 *.ipr
 
+dummy_storage
+.idea
 ### Eclipse ###
 .apt_generated
 .classpath

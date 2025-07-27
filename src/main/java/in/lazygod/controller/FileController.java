@@ -34,8 +34,7 @@ public class FileController {
 
     @PostMapping("/upload")
     public ResponseEntity<File> upload(@RequestParam("file") MultipartFile file,
-                                       @RequestParam String userId,
-                                       @RequestParam String storageId) throws IOException {
+                                       @RequestParam String folderId) throws IOException {
         String fileId = idGenerator.nextId();
         String path = storageId + "/" + fileId;
         storageService.upload(file, path);

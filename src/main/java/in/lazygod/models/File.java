@@ -27,7 +27,11 @@ public class File {
     private User owner;
 
     private String displayName;
-    private String storageId;
+
+    @ManyToOne
+    @JoinColumn(name = "storage_id", nullable = false)
+    private Storage storage;
+
     private long fileSize;
 
     private String version;
