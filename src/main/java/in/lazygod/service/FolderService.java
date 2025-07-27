@@ -42,15 +42,15 @@ public class FolderService {
         User user = SecurityContextHolderUtil.getCurrentUser();
 
         Folder parentFolder = parentId==null || parentId.isBlank() ?
-                folderRepository.findById(user.getUsername()).orElseThrow(()-> new RuntimeException("Folder not found") )
-                :folderRepository.findById(parentId).orElseThrow(()-> new RuntimeException("Folder not found") );
+                folderRepository.findById(user.getUsername()).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found") )
+                :folderRepository.findById(parentId).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found") );
 
         UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), parentFolder.getFolderId(), ResourceType.FOLDER)
-                .orElseThrow(() -> new RuntimeException("Resource not authorized"));
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
         if (!folderRight.getRightsType().equals(FileRights.ADMIN)
                 && !folderRight.getRightsType().equals(FileRights.WRITE)) {
-            throw new RuntimeException("Action not authorized");
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
         }
         Folder folder = Folder.builder()
                 .folderId(idGenerator.nextId())
@@ -115,7 +115,7 @@ public class FolderService {
     public void markFavourite(String folderId, boolean fav) {
         User user = SecurityContextHolderUtil.getCurrentUser();
         UserRights rights = rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folderId)
-                .orElseThrow(() -> new RuntimeException("Not authorized"));
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("not.authorized"));
 
         rights.setFavourite(fav);
         rights.setUpdatedOn(LocalDateTime.now());
@@ -138,10 +138,10 @@ public class FolderService {
         String targetId = (folderId == null || folderId.isBlank()) ? user.getUsername() : folderId;
 
         Folder folder = folderRepository.findById(targetId)
-                .orElseThrow(() -> new RuntimeException("Folder not found"));
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
 
         rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folder.getFolderId())
-                .orElseThrow(() -> new RuntimeException("Resource not authorized"));
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
         Pageable pageable = PageRequest.of(page, size);
 
