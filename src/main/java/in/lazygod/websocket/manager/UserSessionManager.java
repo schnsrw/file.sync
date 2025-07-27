@@ -9,12 +9,14 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 public class UserSessionManager {
 
     private static final UserSessionManager INSTANCE = new UserSessionManager();
     private static final Map<String, UserWrapper> USERS = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<WebSocketSession, SessionWrapper> SESSION_MAP = new ConcurrentHashMap<>();
 
     private UserSessionManager() {}
 
@@ -30,12 +32,17 @@ public class UserSessionManager {
         String username = JwtUtil.extractUsername(token); // JwtUtil must be static
 
         UserWrapper user = USERS.computeIfAbsent(username, UserWrapper::new);
-        SessionWrapper wrapper = new SessionWrapper(session);
+        SessionWrapper wrapper = SESSION_MAP.computeIfAbsent(session, SessionWrapper::new);
         user.addSession(wrapper);
         return wrapper;
     }
 
+    public SessionWrapper find(WebSocketSession session) {
+        return SESSION_MAP.get(session);
+    }
+
     public void close(WebSocketSession session) {
+        SESSION_MAP.remove(session);
         USERS.forEach((user, wrapper) -> {
             wrapper.removeSession(session);
             if (!wrapper.isOnline()) {
