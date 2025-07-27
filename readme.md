@@ -45,6 +45,17 @@ mvn clean install
 ./mvnw spring-boot:run
 ```
 
+### 🐳 Running with Docker Compose
+
+To start the application together with a MySQL database run:
+
+```bash
+docker-compose up --build
+```
+
+The database credentials can be tweaked via the `DB_*` environment variables in
+`docker-compose.yml`.
+
 ## 🎯 Project Goals
 
 - **Application Storage**: users can store files in the application's default storage
