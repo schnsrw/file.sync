@@ -1,6 +1,10 @@
 package in.lazygod.models;
 
+import in.lazygod.enums.FileRights;
+import in.lazygod.enums.ResourceType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,8 +27,10 @@ public class UserRights {
     private String fileId;
     private String parentFolderId;
 
-    private String rightsType; // READ / WRITE / ADMIN
-    private String resourceType; // FILE / FOLDER
+    @Enumerated(EnumType.STRING)
+    private FileRights rightsType;
+    @Enumerated(EnumType.STRING)
+    private ResourceType resourceType;
     private boolean isFavourite;
     private boolean isActive;
 

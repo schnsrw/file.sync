@@ -73,7 +73,7 @@ public class AuthService {
             userRepository.save(user);
 
             Folder folder = Folder.builder()
-                    .folderId(userId)
+                    .folderId(user.getUsername())
                     .isActive(true)
                     .storage(FileManagerApplication.DEFAULT_STORAGE)
                     .updatedOn(LocalDateTime.now())

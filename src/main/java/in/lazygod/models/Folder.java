@@ -20,11 +20,13 @@ public class Folder {
     @Id
     private String folderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parent_id")
     private Folder parentFolder;
 
     private boolean isActive;
+
+    private String displayName;
 
     @ManyToOne
     @JoinColumn(name = "storage_id", nullable = false)
