@@ -14,7 +14,7 @@ public interface StorageImpl {
     /**
      * Upload a file to a specific location.
      *
-     * @param file the file to store
+     * @param file            the file to store
      * @param destinationPath relative destination path inside the storage
      */
     void upload(MultipartFile file, String destinationPath) throws IOException;

@@ -24,7 +24,7 @@ import java.util.Optional;
 @SpringBootApplication
 public class FileManagerApplication implements ApplicationRunner {
 
-    public static Storage DEFAULT_STORAGE ;
+    public static Storage DEFAULT_STORAGE;
 
     public static void main(String[] args) {
         SpringApplication.run(FileManagerApplication.class, args);
@@ -44,8 +44,8 @@ public class FileManagerApplication implements ApplicationRunner {
         this.userRepository = userRepository;
         this.storageRepository = storageRepository;
         this.passwordEncoder = passwordEncoder;
-        this.folderRepository =folderRepository;
-        this.rightsRepository =rightsRepository;
+        this.folderRepository = folderRepository;
+        this.rightsRepository = rightsRepository;
     }
 
     @Value("${storage.type}")
@@ -81,7 +81,7 @@ public class FileManagerApplication implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        JwtUtil.SECRET_KEY = jwtKey ;
+        JwtUtil.SECRET_KEY = jwtKey;
         JwtUtil.EXPIRATION = jwtExpirationHr * 1000 * 60 * 60;
         JwtUtil.key = Keys.hmacShaKeyFor(JwtUtil.SECRET_KEY.getBytes());
 
@@ -124,14 +124,14 @@ public class FileManagerApplication implements ApplicationRunner {
         Optional<Folder> baseFolder = folderRepository.findById(username);
 
         Folder folder = baseFolder.orElseGet(() -> {
-            Folder folderBase= Folder.builder()
+            Folder folderBase = Folder.builder()
                     .folderId(admin.getUsername())
                     .isActive(true)
                     .storage(FileManagerApplication.DEFAULT_STORAGE)
                     .updatedOn(LocalDateTime.now())
                     .createdOn(LocalDateTime.now())
                     .build();
-            folderBase =  folderRepository.save(folderBase);
+            folderBase = folderRepository.save(folderBase);
 
             rightsRepository.save(UserRights.builder()
                     .urId(folderBase.getFolderId())

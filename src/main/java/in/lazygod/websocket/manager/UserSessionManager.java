@@ -6,6 +6,7 @@ import in.lazygod.websocket.model.SessionWrapper;
 import in.lazygod.websocket.model.UserWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.WebSocketSession;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +19,8 @@ public class UserSessionManager {
     private static final Map<String, UserWrapper> USERS = new ConcurrentHashMap<>();
     private static final ConcurrentMap<WebSocketSession, SessionWrapper> SESSION_MAP = new ConcurrentHashMap<>();
 
-    private UserSessionManager() {}
+    private UserSessionManager() {
+    }
 
     public static UserSessionManager getInstance() {
         return INSTANCE;

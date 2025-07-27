@@ -3,9 +3,7 @@ package in.lazygod.controller;
 import in.lazygod.models.Connection;
 import in.lazygod.service.ConnectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

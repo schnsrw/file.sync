@@ -3,15 +3,14 @@ package in.lazygod.controller;
 import in.lazygod.dto.FileResponse;
 import in.lazygod.models.File;
 import in.lazygod.service.FileService;
-
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
 
@@ -50,7 +49,7 @@ public class FileController {
     public ResponseEntity<Void> favourite(@PathVariable("id") String fileId,
                                           @RequestParam boolean fav) {
 
-        fileService.markFavorite(fileId,fav);
+        fileService.markFavorite(fileId, fav);
         return ResponseEntity.ok().build();
     }
 }

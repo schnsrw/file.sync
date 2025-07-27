@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface ConnectionRepository extends JpaRepository<Connection, String> {
     Optional<Connection> findByFromUserIdAndToUserId(String fromUserId, String toUserId);
+
     List<Connection> findByToUserIdAndStatus(String toUserId, ConnectionStatus status);
 
     List<Connection> findByToUserIdOrFromUserIdAndStatus(String toUserId, ConnectionStatus status, PageRequest of);

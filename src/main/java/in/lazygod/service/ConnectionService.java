@@ -30,7 +30,9 @@ public class ConnectionService {
                 .orElseThrow(() -> new in.lazygod.exception.NotFoundException("user.not.found"));
 
         connectionRepository.findByFromUserIdAndToUserId(from.getUserId(), to.getUserId())
-                .ifPresent(c -> { throw new in.lazygod.exception.BadRequestException("connection.exists"); });
+                .ifPresent(c -> {
+                    throw new in.lazygod.exception.BadRequestException("connection.exists");
+                });
 
         Connection connection = Connection.builder()
                 .connectionId(idGenerator.nextId())

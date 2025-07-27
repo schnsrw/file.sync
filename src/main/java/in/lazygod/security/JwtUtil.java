@@ -1,7 +1,9 @@
 package in.lazygod.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Setter;
 
 import java.security.Key;
@@ -10,7 +12,7 @@ import java.util.Date;
 @Setter
 public class JwtUtil {
 
-    public static String SECRET_KEY ;
+    public static String SECRET_KEY;
 
     public static long EXPIRATION;
     public static Key key;
@@ -31,7 +33,7 @@ public class JwtUtil {
         return getClaims(token).getSubject();
     }
 
-    public static  boolean validateToken(String token) {
+    public static boolean validateToken(String token) {
         try {
             getClaims(token);
             return true;

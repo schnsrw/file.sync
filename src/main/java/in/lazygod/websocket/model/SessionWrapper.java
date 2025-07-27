@@ -6,12 +6,12 @@ import lombok.Setter;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.concurrent.Executor;
-
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
-@Getter @Setter
+@Getter
+@Setter
 public class SessionWrapper {
     private static Executor executor;
     private final WebSocketSession session;

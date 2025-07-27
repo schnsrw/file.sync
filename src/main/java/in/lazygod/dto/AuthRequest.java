@@ -1,4 +1,5 @@
 package in.lazygod.dto;
+
 import lombok.Data;
 
 @Data

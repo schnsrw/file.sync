@@ -1,7 +1,7 @@
 package in.lazygod.controller;
 
-import in.lazygod.models.Folder;
 import in.lazygod.dto.FolderContent;
+import in.lazygod.models.Folder;
 import in.lazygod.service.FolderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class FolderController {
     @PostMapping
     public ResponseEntity<Folder> create(@RequestParam(required = false) String parentId,
                                          String folderName) {
-        return ResponseEntity.ok(folderService.createFolder(parentId,folderName));
+        return ResponseEntity.ok(folderService.createFolder(parentId, folderName));
     }
 
     @PostMapping("/{id}/favourite")

@@ -1,7 +1,6 @@
 package in.lazygod.service;
 
 import in.lazygod.models.Storage;
-import in.lazygod.models.User;
 
 import java.util.List;
 

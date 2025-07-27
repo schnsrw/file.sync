@@ -1,10 +1,11 @@
 package in.lazygod.dto;
 
-import org.springframework.core.io.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.core.io.Resource;
 
-@Data @AllArgsConstructor
+@Data
+@AllArgsConstructor
 public class FileResponse {
     String displayName;
     Resource resource;

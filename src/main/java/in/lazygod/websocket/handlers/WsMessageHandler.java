@@ -8,5 +8,6 @@ import in.lazygod.websocket.model.SessionWrapper;
  */
 public interface WsMessageHandler {
     String type();
+
     void handle(SessionWrapper wrapper, JsonNode payload) throws Exception;
 }

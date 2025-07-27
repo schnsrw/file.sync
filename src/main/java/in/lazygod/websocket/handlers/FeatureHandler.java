@@ -24,10 +24,10 @@ public class FeatureHandler implements WsMessageHandler {
         JsonNode features = mapper.valueToTree(HandlerRegistry.getInstance().getHandlers().keySet());
 
         wrapper.sendAsync(Packet.builder()
-                        .from("system")
-                        .to(wrapper.getUserWrapper().getUsername())
-                        .type("features")
-                        .payload(features)
+                .from("system")
+                .to(wrapper.getUserWrapper().getUsername())
+                .type("features")
+                .payload(features)
                 .build());
     }
 

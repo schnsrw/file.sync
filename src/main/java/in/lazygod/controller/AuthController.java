@@ -7,7 +7,6 @@ import in.lazygod.security.JwtUtil;
 import in.lazygod.security.SecurityContextHolderUtil;
 import in.lazygod.service.AuthService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,7 +54,7 @@ public class AuthController {
     }
 
     @PostMapping("{userId}/verify")
-    public ResponseEntity<AuthResponse> verify(@RequestParam String userId,@RequestBody VerificationRequest request) {
+    public ResponseEntity<AuthResponse> verify(@RequestParam String userId, @RequestBody VerificationRequest request) {
 
         return ResponseEntity.ok(authService.verifyUser(userId, request));
     }

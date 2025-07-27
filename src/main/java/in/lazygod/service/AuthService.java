@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-@Service @Slf4j @RequiredArgsConstructor
+@Service
+@Slf4j
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -55,7 +57,7 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public AuthResponse generateTokens(User user){
+    public AuthResponse generateTokens(User user) {
         String token = JwtUtil.generateToken(user.getUsername());
         String refreshToken = JwtUtil.generateRefreshToken(user.getUsername());
 
@@ -68,7 +70,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new in.lazygod.exception.NotFoundException("user.not.found"));
 
-        if(passwordEncoder.matches(request.getVerificationCode(), user.getVerificationCode())){
+        if (passwordEncoder.matches(request.getVerificationCode(), user.getVerificationCode())) {
             user.setVerification(Verification.VERIFIED);
             userRepository.save(user);
 

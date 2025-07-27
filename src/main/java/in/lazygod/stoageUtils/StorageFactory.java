@@ -18,7 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class StorageFactory {
 
-    /** Entries stay in the cache for this duration. */
+    /**
+     * Entries stay in the cache for this duration.
+     */
     private static final Duration CACHE_TTL = Duration.ofMinutes(10);
 
     /**
@@ -38,7 +40,9 @@ public class StorageFactory {
         }
     }
 
-    /** Cache keyed by storageId. */
+    /**
+     * Cache keyed by storageId.
+     */
     private static final Map<String, CachedEntry> CACHE = new ConcurrentHashMap<>();
 
     /**
@@ -47,7 +51,7 @@ public class StorageFactory {
      * @param config storage configuration
      * @return a cached or newly created implementation
      */
-    public static StorageImpl getStorageImpl(Storage config){
+    public static StorageImpl getStorageImpl(Storage config) {
         String key = config.getStorageId();
         CachedEntry cached = CACHE.get(key);
         if (cached != null && !cached.expired()) {
@@ -55,7 +59,7 @@ public class StorageFactory {
         }
 
         StorageImpl impl;
-        switch (config.getStorageType()){
+        switch (config.getStorageType()) {
             case LOCAL -> impl = new LocalStorage(config.getBasePath());
             case S3 -> impl = new S3Storage();
             default -> impl = new DummyStorage();

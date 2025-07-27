@@ -39,9 +39,9 @@ public class FileService {
 
         User user = SecurityContextHolderUtil.getCurrentUser();
 
-        Folder folder = folderId==null || folderId.isBlank() ?
-                folderRepository.findById(user.getUsername()).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found") )
-                :folderRepository.findById(folderId).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found") );
+        Folder folder = folderId == null || folderId.isBlank() ?
+                folderRepository.findById(user.getUsername()).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"))
+                : folderRepository.findById(folderId).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
 
         UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), folder.getFolderId(), ResourceType.FOLDER)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
@@ -55,7 +55,7 @@ public class FileService {
         String path = folder.getStorage().getBasePath() + "/" + fileId;
 
         StorageImpl storageImpl = StorageFactory.getStorageImpl(folder.getStorage());
-        storageImpl.upload(file,path);
+        storageImpl.upload(file, path);
 
         File entity = File.builder()
                 .fileId(fileId)
@@ -87,19 +87,19 @@ public class FileService {
         return entity;
     }
 
-    private void setRightsForFile(User user, Folder folder, File file){
+    private void setRightsForFile(User user, Folder folder, File file) {
 
-        List<UserRights> rights = rightsRepository.findAllByFileIdAndResourceType(folder.getFolderId(),ResourceType.FOLDER);
+        List<UserRights> rights = rightsRepository.findAllByFileIdAndResourceType(folder.getFolderId(), ResourceType.FOLDER);
 
-        List<UserRights> fileRights = rights.stream().map(right ->{
+        List<UserRights> fileRights = rights.stream().map(right -> {
             return UserRights.builder()
                     .urId(idGenerator.nextId())
                     .userId(right.getUserId())
                     .fileId(file.getFileId())
                     .parentFolderId(folder.getFolderId())
                     .rightsType(
-                            right.getUserId().equals(user.getUserId()) ?(right.getRightsType() == FileRights.ADMIN)
-                                    ? FileRights.ADMIN :FileRights.WRITE :  right.getRightsType())
+                            right.getUserId().equals(user.getUserId()) ? (right.getRightsType() == FileRights.ADMIN)
+                                    ? FileRights.ADMIN : FileRights.WRITE : right.getRightsType())
                     .resourceType(ResourceType.FILE)
                     .isFavourite(false)
                     .isActive(true)
@@ -148,7 +148,7 @@ public class FileService {
         activityRepository.save(ActivityLog.builder()
                 .activityId(idGenerator.nextId())
                 .userId(user.getUserId())
-                .action(fav ? ACTIONS.FAV: ACTIONS.UN_FAV)
+                .action(fav ? ACTIONS.FAV : ACTIONS.UN_FAV)
                 .resourceType(ResourceType.FILE)
                 .targetId(fileId)
                 .timestamp(LocalDateTime.now())
