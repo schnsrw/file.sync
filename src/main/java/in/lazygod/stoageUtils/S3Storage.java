@@ -1,6 +1,5 @@
-package in.lazygod.service.impl;
+package in.lazygod.stoageUtils;
 
-import in.lazygod.service.StorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +11,7 @@ import java.io.IOException;
  * can be provided by wiring the AWS SDK and injecting an AmazonS3 client.
  */
 @Service
-public class S3StorageService implements StorageService {
+public class S3Storage implements StorageImpl {
 
     @Override
     public void upload(MultipartFile file, String destinationPath) throws IOException {

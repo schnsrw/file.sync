@@ -1,8 +1,8 @@
 package in.lazygod.models;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,11 +17,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Folder {
+
     @Id
     private String folderId;
 
-    private String parentFolder;
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Folder parentFolder;
+
     private boolean isActive;
+
+    private String displayName;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "storage_id", nullable = false)
+    private Storage storage;
 
     private LocalDateTime createdOn;
     private LocalDateTime updatedOn;

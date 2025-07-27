@@ -1,9 +1,7 @@
-package in.lazygod.service.impl;
+package in.lazygod.stoageUtils;
 
-import in.lazygod.service.StorageService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -13,11 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * In-memory storage service used for development and testing.
  */
-import org.springframework.context.annotation.Primary;
 
-@Service
-@Primary
-public class DummyStorageService implements StorageService {
+public class DummyStorage implements StorageImpl {
 
     private final Map<String, byte[]> store = new ConcurrentHashMap<>();
 

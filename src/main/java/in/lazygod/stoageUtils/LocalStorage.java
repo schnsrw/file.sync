@@ -1,25 +1,26 @@
-package in.lazygod.service.impl;
+package in.lazygod.stoageUtils;
 
-import in.lazygod.service.StorageService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-@Service
-public class LocalStorageService implements StorageService {
+
+public class LocalStorage implements StorageImpl {
 
     /**
      * Base location on the local filesystem where files will be stored.
      */
-    @Value("${storage.local.base-path}")
-    private Path basePath;
+    private final Path basePath;
+
+    public LocalStorage(String basePath) {
+        this.basePath = new File(basePath).toPath();
+    }
 
     @Override
     public void upload(MultipartFile file, String destinationPath) throws IOException {
