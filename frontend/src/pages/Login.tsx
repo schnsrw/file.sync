@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../lib/api';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: integrate your backend API
-    console.log({ email, password });
-    navigate('/dashboard');
+    try {
+      const { data } = await api.post('/auth/login', {
+        username,
+        password,
+      });
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshTooken);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
+      alert('Login failed');
+    }
   };
 
   return (
@@ -19,14 +29,14 @@ export default function Login() {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login to File Manager</h2>
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-600 mb-1">
-              Email
+            <label htmlFor="username" className="block text-sm font-medium text-gray-600 mb-1">
+              Username
             </label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
