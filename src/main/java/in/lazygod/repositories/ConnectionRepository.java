@@ -14,6 +14,7 @@ public interface ConnectionRepository extends JpaRepository<Connection, String> 
 
     List<Connection> findByToUserIdAndStatus(String toUserId, ConnectionStatus status);
 
+    @Query("SELECT C FROM Connection C where (toUserId = :toUserId OR fromUserId = :fromUserId ) AND status = :status")
     List<Connection> findByToUserIdOrFromUserIdAndStatus(String toUserId, ConnectionStatus status, PageRequest of);
 
     @Query("SELECT C FROM Connection C where ((toUserId = :toUserId AND fromUserId = :fromUserId ) OR (toUserId = :fromUserId AND fromUserId = :toUserId) ) AND status = :status")
