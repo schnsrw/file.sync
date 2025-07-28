@@ -1,7 +1,9 @@
+import DashboardLayout from '../components/DashboardLayout';
+
 export default function Dashboard() {
   return (
-    <div className="min-h-screen flex items-center justify-center text-xl text-gray-700">
-      <p>Dashboard</p>
-    </div>
+    <DashboardLayout>
+      <p className="text-gray-700">Dashboard</p>
+    </DashboardLayout>
   );
 }
