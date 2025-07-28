@@ -19,6 +19,8 @@ public interface UserRightsRepository extends JpaRepository<UserRights, String> 
 
     List<UserRights> findAllByFileIdAndResourceType(String fileId, ResourceType resourceType);
 
+    List<UserRights> findAllByParentFolderIdAndResourceType(String parentFolderId, ResourceType resourceType);
+
     Page<UserRights> findAllByUserIdAndParentFolderIdAndResourceType(
             String userId,
             String parentFolderId,

@@ -1,6 +1,7 @@
 package in.lazygod.controller;
 
 import in.lazygod.models.User;
+import in.lazygod.dto.UserUpdateRequest;
 import in.lazygod.security.SecurityContextHolderUtil;
 import in.lazygod.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,5 +38,10 @@ public class UserController {
         boolean success = userService.disconnect(username);
 
         return success ? ResponseEntity.accepted().build() : ResponseEntity.badRequest().build();
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<User> updateProfile(@RequestBody UserUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateProfile(request));
     }
 }
