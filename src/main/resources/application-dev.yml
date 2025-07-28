@@ -9,3 +9,29 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+logging:
+  level:
+    root: INFO
+    in.lazygod: DEBUG
+
+jwt:
+  secret : YourSecretKeyHereYourSecretKeyHere
+  expiration:
+    hr: 10
+
+storage:
+  id: default-local
+  type: LOCAL
+  access_id :
+  access_key :
+  local:
+    base-path: /Users/sachin/IdeaProjects/filemanager/dummy_storage
+
+system:
+  admin:
+    username: admin
+    email: admin@example.com
+    password: admin123
+
+snowflake:
+  node-id: 1
