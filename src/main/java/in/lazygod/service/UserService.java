@@ -7,6 +7,7 @@ import in.lazygod.models.User;
 import in.lazygod.repositories.ConnectionRepository;
 import in.lazygod.repositories.UserRepository;
 import in.lazygod.security.SecurityContextHolderUtil;
+import in.lazygod.dto.UserUpdateRequest;
 import in.lazygod.websocket.handlers.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,5 +61,17 @@ public class UserService {
         NotificationHandler.send(receipent.getUsername(), current.getUsername(), "connection-rejected", null);
 
         return true;
+    }
+
+    public User updateProfile(UserUpdateRequest request) {
+        User current = SecurityContextHolderUtil.getCurrentUser();
+        if (request.getEmail() != null) {
+            current.setEmail(request.getEmail());
+        }
+        if (request.getFullName() != null) {
+            current.setFullName(request.getFullName());
+        }
+        current.setUpdatedOn(LocalDateTime.now());
+        return userRepository.save(current);
     }
 }
