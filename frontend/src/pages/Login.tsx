@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import AuthLayout from '../components/AuthLayout';
+import Button from '../components/Button';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -24,10 +26,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login to File Manager</h2>
-        <form onSubmit={handleLogin} className="space-y-5">
+    <AuthLayout title="Login to File Manager">
+      <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-600 mb-1">
               Username
@@ -54,20 +54,16 @@ export default function Login() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
-          >
+          <Button type="submit" className="w-full">
             Sign In
-          </button>
+          </Button>
         </form>
-        <p className="text-sm text-center mt-6 text-gray-500">
-          Don’t have an account?{' '}
-          <a href="/register" className="text-blue-600 hover:underline">
-            Register
-          </a>
-        </p>
-      </div>
-    </div>
+      <p className="text-sm text-center text-gray-500">
+        Don’t have an account?{' '}
+        <a href="/register" className="text-blue-600 hover:underline">
+          Register
+        </a>
+      </p>
+    </AuthLayout>
   );
 }
