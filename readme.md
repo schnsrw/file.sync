@@ -41,8 +41,8 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 # Build project
 mvn clean install
 
-# Run app
-./mvnw spring-boot:run
+# Run app with the in-memory H2 database
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 ### 🐳 Running with Docker Compose
@@ -53,7 +53,8 @@ To start the application together with a MySQL database run:
 docker-compose up --build
 ```
 
-The database credentials can be tweaked via the `DB_*` environment variables in
+The application will use the default MySQL configuration from `application.yml`.
+Database credentials can be tweaked via the `DB_*` environment variables in
 `docker-compose.yml`.
 
 ## 🎯 Project Goals

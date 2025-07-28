@@ -53,6 +53,12 @@
             <scope>runtime</scope>
             <version>8.0.33</version>
         </dependency>
+        <!-- H2 Driver for dev profile -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- Security -->
         <dependency>
