@@ -4,12 +4,16 @@ import in.lazygod.FileManagerApplication;
 import in.lazygod.dto.AuthResponse;
 import in.lazygod.dto.RegisterRequest;
 import in.lazygod.dto.VerificationRequest;
+import in.lazygod.enums.FileRights;
+import in.lazygod.enums.ResourceType;
 import in.lazygod.enums.Role;
 import in.lazygod.enums.Verification;
 import in.lazygod.models.Folder;
 import in.lazygod.models.User;
+import in.lazygod.models.UserRights;
 import in.lazygod.repositories.FolderRepository;
 import in.lazygod.repositories.UserRepository;
+import in.lazygod.repositories.UserRightsRepository;
 import in.lazygod.security.JwtUtil;
 import in.lazygod.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +35,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final SnowflakeIdGenerator idGenerator;
     private final FolderRepository folderRepository;
+    private final UserRightsRepository rightsRepository;
 
 
     public User register(@RequestBody RegisterRequest request) {
@@ -82,6 +87,18 @@ public class AuthService {
                     .createdOn(LocalDateTime.now())
                     .build();
             folderRepository.save(folder);
+
+            rightsRepository.save(UserRights.builder()
+                    .urId(folder.getFolderId())
+                    .userId(user.getUserId())
+                    .fileId(folder.getFolderId())
+                    .rightsType(FileRights.ADMIN)
+                    .resourceType(ResourceType.FOLDER)
+                    .isFavourite(false)
+                    .isActive(true)
+                    .createdOn(LocalDateTime.now())
+                    .updatedOn(LocalDateTime.now())
+                    .build());
 
             return generateTokens(user);
         }
