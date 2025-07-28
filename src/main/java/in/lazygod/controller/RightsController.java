@@ -3,6 +3,7 @@ package in.lazygod.controller;
 import in.lazygod.dto.GrantRightsRequest;
 import in.lazygod.enums.ResourceType;
 import in.lazygod.models.UserRights;
+import in.lazygod.dto.RightsInfo;
 import in.lazygod.service.UserRightsService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +25,15 @@ public class RightsController {
         return ResponseEntity.ok(userRightsService.grantRights(request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> revoke(@PathVariable("id") String id) {
-        userRightsService.revokeRights(id);
+    @DeleteMapping
+    public ResponseEntity<Void> revoke(@RequestParam String resourceId,
+                                       @RequestParam ResourceType resourceType) {
+        userRightsService.revokeRights(resourceId, resourceType);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<UserRights>> list(@RequestParam String resourceId,
+    public ResponseEntity<List<RightsInfo>> list(@RequestParam String resourceId,
                                                  @RequestParam ResourceType resourceType) {
         return ResponseEntity.ok(userRightsService.listRights(resourceId, resourceType));
     }
