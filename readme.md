@@ -77,3 +77,21 @@ Database credentials can be tweaked via the `DB_*` environment variables in
 
 - Collaborative editing through Collabora Online integration.
 - File versioning with configurable retention per storage.
+
+---
+
+## 📚 SDK
+
+A lightweight Java SDK is available under the [`sdk`](sdk) directory. It targets **Java 17** and offers helper classes to authenticate with the API, make HTTP requests and work with the WebSocket endpoint.
+
+Example usage:
+
+```java
+var sdk = new in.lazygod.sdk.FileManagerSDK("http://localhost:8080", "user", "pass");
+String me = sdk.get("/users/me");
+
+sdk.connectWebSocket();
+sdk.registerWebSocketHandler("notification", payload -> System.out.println(payload));
+```
+
+The SDK also exposes helpers to refresh tokens automatically when API calls return 401.
