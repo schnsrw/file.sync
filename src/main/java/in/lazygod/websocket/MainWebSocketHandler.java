@@ -7,6 +7,7 @@ import in.lazygod.websocket.handlers.WsMessageHandler;
 import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.SessionWrapper;
+import in.lazygod.websocket.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,6 +26,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
 
     private final HandlerRegistry registry;
     private final @Qualifier("wsExecutor") Executor executor;
+    private final ChatService chatService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     static {
@@ -33,7 +35,10 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        UserSessionManager.getInstance().register(session);
+        SessionWrapper wrapper = UserSessionManager.getInstance().register(session);
+        if (wrapper != null) {
+            chatService.deliverPending(wrapper.getUserWrapper().getUsername());
+        }
     }
 
     @Override
@@ -42,6 +47,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
         if (wrapper == null) {
             wrapper = UserSessionManager.getInstance().register(session);
             if (wrapper == null) return;
+            chatService.deliverPending(wrapper.getUserWrapper().getUsername());
         }
 
         Packet packet = mapper.readValue(message.getPayload(), Packet.class);
