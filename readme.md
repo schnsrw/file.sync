@@ -57,6 +57,13 @@ The application will use the default MySQL configuration from `application.yml`.
 Database credentials can be tweaked via the `DB_*` environment variables in
 `docker-compose.yml`.
 
+For local development without running the application container you can start
+the supporting databases using:
+
+```bash
+docker-compose -f docker-compose.dev.yml up -d
+```
+
 ## 🎯 Project Goals
 
 - **Application Storage**: users can store files in the application's default storage
@@ -72,6 +79,7 @@ Database credentials can be tweaked via the `DB_*` environment variables in
   or restrict access to folders.
 - **Chat**: users can chat one‑on‑one with others in their roster and share files;
   workspace chats enable group conversations via WebSocket.
+  Messages are stored in MongoDB and the sender is notified once a message is delivered.
 
 ## 🔮 Future Plans
 
