@@ -10,7 +10,13 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 - 👤 User Registration & Login
 - 🧑‍⚖️ Role-based Access Control (`@PreAuthorize`)
 - 💾 S3-compatible file storage (e.g., MinIO, AWS S3)
-- 📁 Upload, download, view, delete files
+- 📁 Upload & download files
+- 📂 Folder creation and listing
+- 🗂️ Storage management endpoints
+- 👥 Connection requests and WebSocket chat
+- 🔐 Grant/revoke rights on files and folders
+- 📝 API logging with Swagger documentation
+- 🧩 Java SDK for client integrations
 - 🐳 Dockerized application
 - 🔄 Token refresh endpoint
 - 📜 Swagger UI docs (`/swagger-ui.html`)
@@ -85,3 +91,21 @@ docker-compose -f docker-compose.dev.yml up -d
 
 - Collaborative editing through Collabora Online integration.
 - File versioning with configurable retention per storage.
+
+## ✅ Completed Milestones
+
+- Core authentication with JWT
+- User registration and profile endpoints
+- File upload and download with S3 support
+- Folder management and listing
+- Rights management for files and folders
+- Connection requests and WebSocket chat
+- Storage configuration APIs
+- Java SDK skeleton for clients
+
+## 🚧 In Pipeline
+
+- File and folder deletion endpoints
+- Folder tree and file listing APIs
+- Admin user management endpoint
+- Audit log querying
