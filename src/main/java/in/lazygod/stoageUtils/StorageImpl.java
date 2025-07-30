@@ -41,4 +41,30 @@ public interface StorageImpl {
      * @return true if the file exists
      */
     boolean exists(String storagePath) throws IOException;
+
+    /**
+     * Generate a presigned URL for uploading a file directly to the storage
+     * backend. Implementations that do not support presigned URLs may throw
+     * {@link UnsupportedOperationException}.
+     *
+     * @param destinationPath relative path in the storage
+     * @param expiry          validity duration of the URL
+     * @return URL that clients can use to upload
+     */
+    default String generatePresignedUploadUrl(String destinationPath, java.time.Duration expiry) {
+        throw new UnsupportedOperationException("Presigned upload not supported");
+    }
+
+    /**
+     * Generate a presigned URL for downloading a file directly from the storage
+     * backend. Implementations that do not support presigned URLs may throw
+     * {@link UnsupportedOperationException}.
+     *
+     * @param storagePath relative path to the file in storage
+     * @param expiry      validity duration of the URL
+     * @return URL that clients can use to download
+     */
+    default String generatePresignedDownloadUrl(String storagePath, java.time.Duration expiry) {
+        throw new UnsupportedOperationException("Presigned download not supported");
+    }
 }

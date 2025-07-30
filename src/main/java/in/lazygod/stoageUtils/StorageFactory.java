@@ -61,7 +61,7 @@ public class StorageFactory {
         StorageImpl impl;
         switch (config.getStorageType()) {
             case LOCAL -> impl = new LocalStorage(config.getBasePath());
-            case S3 -> impl = new S3Storage();
+            case S3 -> impl = new S3Storage(config.getAccessId(), config.getAccessKey());
             default -> impl = new DummyStorage();
         }
 
