@@ -68,4 +68,11 @@ public class StorageFactory {
         CACHE.put(key, new CachedEntry(impl));
         return impl;
     }
+
+    /**
+     * Remove expired cache entries.
+     */
+    public static void cleanExpired() {
+        CACHE.entrySet().removeIf(e -> e.getValue().expired());
+    }
 }

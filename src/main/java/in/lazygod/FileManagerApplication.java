@@ -16,12 +16,14 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @SpringBootApplication
+@EnableScheduling
 public class FileManagerApplication implements ApplicationRunner {
 
     public static Storage DEFAULT_STORAGE;
