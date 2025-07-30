@@ -1,6 +1,7 @@
 package in.lazygod.admin;
 
 import in.lazygod.models.User;
+import in.lazygod.config.RateLimitProperties;
 import in.lazygod.repositories.UserRepository;
 import in.lazygod.stoageUtils.StorageFactory;
 import in.lazygod.websocket.manager.UserSessionManager;
@@ -18,12 +19,14 @@ import java.nio.file.Path;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final RateLimitProperties rateLimitProperties;
 
     @GetMapping
     public String index(Model model) {
         model.addAttribute("users", userRepository.findAll());
         model.addAttribute("wsSessions", UserSessionManager.getInstance().getActiveSessions());
         model.addAttribute("metrics", AdminUtil.systemMetrics());
+        model.addAttribute("rateLimitEnabled", rateLimitProperties.isEnabled());
         return "admin/index";
     }
 
@@ -46,6 +49,12 @@ public class AdminController {
     @PostMapping("/ws/{sessionId}/close")
     public String closeWs(@PathVariable String sessionId) {
         UserSessionManager.getInstance().closeById(sessionId);
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/ratelimit/toggle")
+    public String toggleRateLimit() {
+        rateLimitProperties.setEnabled(!rateLimitProperties.isEnabled());
         return "redirect:/admin";
     }
 

@@ -42,6 +42,12 @@
     <button type="submit">Cleanup Caches</button>
 </form>
 
+<h2>Rate Limiting</h2>
+<p>Enabled: <span th:text="${rateLimitEnabled}"></span></p>
+<form th:action="@{/admin/ratelimit/toggle}" method="post">
+    <button type="submit">Toggle Rate Limit</button>
+</form>
+
 <p><a th:href="@{/admin/logs}">View Logs</a></p>
 <p><a th:href="@{/admin/logout}">Logout</a></p>
 </body>

@@ -45,3 +45,7 @@ snowflake:
 
 encryption:
   secret: ChangeThisSecretKey123
+
+ratelimit:
+  enabled: true
+  limit: 60
