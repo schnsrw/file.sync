@@ -1,16 +1,19 @@
 package in.lazygod.service;
 
 import in.lazygod.dto.GrantRightsRequest;
+import in.lazygod.enums.ACTIONS;
 import in.lazygod.enums.FileRights;
 import in.lazygod.enums.ResourceType;
 import in.lazygod.models.User;
 import in.lazygod.models.UserRights;
 import in.lazygod.models.File;
 import in.lazygod.models.Folder;
+import in.lazygod.models.ActivityLog;
 import in.lazygod.repositories.FileRepository;
 import in.lazygod.repositories.FolderRepository;
 import in.lazygod.repositories.UserRepository;
 import in.lazygod.repositories.UserRightsRepository;
+import in.lazygod.repositories.ActivityLogRepository;
 import in.lazygod.security.SecurityContextHolderUtil;
 import in.lazygod.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ public class UserRightsService {
     private final SnowflakeIdGenerator idGenerator;
     private final FileRepository fileRepository;
     private final FolderRepository folderRepository;
+    private final ActivityLogRepository activityRepository;
 
     @Transactional
     public UserRights grantRights(GrantRightsRequest request) {
@@ -43,21 +47,33 @@ public class UserRightsService {
         User target = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new in.lazygod.exception.NotFoundException("user.not.found"));
 
+        UserRights result;
         if (request.getResourceType() == ResourceType.FILE) {
             File file = fileRepository.findById(request.getResourceId())
                     .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
             String parent = file.getParentFolder() == null ? null : file.getParentFolder().getFolderId();
             String parentForUser = determineParentFolder(target, parent);
-            return applyFileRights(target, file, parentForUser, request.getRightsType());
+            result = applyFileRights(target, file, parentForUser, request.getRightsType());
         } else {
             Folder folder = folderRepository.findById(request.getResourceId())
                     .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
             String parent = folder.getParentFolder() == null ? null : folder.getParentFolder().getFolderId();
             String parentForUser = determineParentFolder(target, parent);
             applyFolderRightsRecursive(target, folder, parentForUser, request.getRightsType());
-            return rightsRepository.findByUserIdAndParentFolderId(target.getUserId(), folder.getFolderId())
+            result = rightsRepository.findByUserIdAndParentFolderId(target.getUserId(), folder.getFolderId())
                     .orElseThrow();
         }
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(current.getUserId())
+                .action(ACTIONS.MODIFY)
+                .resourceType(request.getResourceType())
+                .targetId(request.getResourceId())
+                .timestamp(LocalDateTime.now())
+                .build());
+
+        return result;
     }
 
     @Transactional
@@ -70,6 +86,15 @@ public class UserRightsService {
             rightsRepository.findByUserIdAndParentFolderId(current.getUserId(), resourceId)
                     .ifPresent(rightsRepository::delete);
         }
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(current.getUserId())
+                .action(ACTIONS.MODIFY)
+                .resourceType(type)
+                .targetId(resourceId)
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 
     public List<RightsInfo> listRights(String resourceId, ResourceType type) {
