@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Panel</title>
+</head>
+<body>
+<h1>Admin Panel</h1>
+
+<h2>System Metrics</h2>
+<p>Memory Used: <span th:text="${metrics.memUsed}"></span> / <span th:text="${metrics.memTotal}"></span></p>
+<p>CPU Load: <span th:text="${metrics.cpuLoad}"></span>%</p>
+
+<h2>Users</h2>
+<table border="1">
+    <tr><th>Username</th><th>Active</th><th>Action</th></tr>
+    <tr th:each="u : ${users}">
+        <td th:text="${u.username}"></td>
+        <td th:text="${u.active}"></td>
+        <td>
+            <form th:action="@{'/admin/users/' + ${u.userId} + '/toggle'}" method="post">
+                <button type="submit">Toggle</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<h2>WebSocket Sessions</h2>
+<table border="1">
+    <tr><th>Session Id</th><th>User</th><th>Action</th></tr>
+    <tr th:each="ws : ${wsSessions}">
+        <td th:text="${ws.key}"></td>
+        <td th:text="${ws.value}"></td>
+        <td>
+            <form th:action="@{'/admin/ws/' + ${ws.key} + '/close'}" method="post">
+                <button type="submit">Close</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<form th:action="@{/admin/cache/cleanup}" method="post">
+    <button type="submit">Cleanup Caches</button>
+</form>
+
+<p><a th:href="@{/admin/logs}">View Logs</a></p>
+<p><a th:href="@{/admin/logout}">Logout</a></p>
+</body>
+</html>

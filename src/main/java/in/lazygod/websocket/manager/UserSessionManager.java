@@ -9,6 +9,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -61,6 +63,28 @@ public class UserSessionManager {
     public void sendToUser(String username, Packet packet) {
         UserWrapper wrapper = USERS.get(username);
         if (wrapper != null) wrapper.send(packet);
+    }
+
+    public Map<String, String> getActiveSessions() {
+        Map<String, String> map = new HashMap<>();
+        SESSION_MAP.forEach((session, wrapper) -> {
+            if (wrapper.getUserWrapper() != null) {
+                map.put(session.getId(), wrapper.getUserWrapper().getUsername());
+            }
+        });
+        return map;
+    }
+
+    public void closeById(String sessionId) {
+        SESSION_MAP.keySet().stream()
+                .filter(s -> s.getId().equals(sessionId))
+                .findFirst()
+                .ifPresent(s -> {
+                    try {
+                        s.close();
+                    } catch (IOException ignored) {}
+                    close(s);
+                });
     }
 
     /**
