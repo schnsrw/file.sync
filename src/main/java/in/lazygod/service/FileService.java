@@ -154,4 +154,114 @@ public class FileService {
                 .timestamp(LocalDateTime.now())
                 .build());
     }
+
+    @Transactional
+    public void moveToTrash(String fileId) throws IOException {
+
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
+
+        UserRights rights = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), fileId, ResourceType.FILE)
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
+
+        if (rights.getRightsType() != FileRights.ADMIN) {
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
+        }
+
+        file.setTrashed(true);
+        file.setTrashedOn(LocalDateTime.now());
+        fileRepository.save(file);
+
+        var fileRights = rightsRepository.findAllByFileIdAndResourceType(fileId, ResourceType.FILE);
+        for (var r : fileRights) {
+            r.setActive(false);
+            r.setUpdatedOn(LocalDateTime.now());
+        }
+        rightsRepository.saveAll(fileRights);
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.TRASH)
+                .resourceType(ResourceType.FILE)
+                .targetId(fileId)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @Transactional
+    public void restore(String fileId) {
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
+
+        UserRights rights = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), fileId, ResourceType.FILE)
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
+
+        if (rights.getRightsType() != FileRights.ADMIN) {
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
+        }
+
+        file.setTrashed(false);
+        file.setTrashedOn(null);
+        fileRepository.save(file);
+
+        var fileRights = rightsRepository.findAllByFileIdAndResourceType(fileId, ResourceType.FILE);
+        for (var r : fileRights) {
+            r.setActive(true);
+            r.setUpdatedOn(LocalDateTime.now());
+        }
+        rightsRepository.saveAll(fileRights);
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.RESTORE)
+                .resourceType(ResourceType.FILE)
+                .targetId(fileId)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @Transactional
+    public void deletePermanent(String fileId) throws IOException {
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
+
+        UserRights rights = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), fileId, ResourceType.FILE)
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
+
+        if (rights.getRightsType() != FileRights.ADMIN) {
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
+        }
+
+        StorageImpl storageImpl = StorageFactory.getStorageImpl(file.getStorage());
+        if (storageImpl.exists(file.getPath())) {
+            storageImpl.delete(file.getPath());
+        }
+
+        file.setActive(false);
+        fileRepository.save(file);
+
+        var fileRights = rightsRepository.findAllByFileIdAndResourceType(fileId, ResourceType.FILE);
+        for (var r : fileRights) {
+            r.setActive(false);
+            r.setUpdatedOn(LocalDateTime.now());
+        }
+        rightsRepository.saveAll(fileRights);
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.DELETE)
+                .resourceType(ResourceType.FILE)
+                .targetId(fileId)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
 }

@@ -35,6 +35,7 @@ public class FolderService {
     private final UserRightsRepository rightsRepository;
     private final ActivityLogRepository activityRepository;
     private final SnowflakeIdGenerator idGenerator;
+    private final FileService fileService;
 
     @Transactional
     public Folder createFolder(String parentId, String folderName) {
@@ -169,5 +170,141 @@ public class FolderService {
                 .build());
 
         return new FolderContent(accessibleFolders, files);
+    }
+
+    @Transactional
+    public void moveToTrash(String folderId) {
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+
+        UserRights rights = rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folderId)
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
+
+        if (rights.getRightsType() != FileRights.ADMIN) {
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
+        }
+
+        moveFolderRecursive(folder, true);
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.TRASH)
+                .resourceType(ResourceType.FOLDER)
+                .targetId(folderId)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @Transactional
+    public void restore(String folderId) {
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+
+        UserRights rights = rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folderId)
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
+
+        if (rights.getRightsType() != FileRights.ADMIN) {
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
+        }
+
+        moveFolderRecursive(folder, false);
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.RESTORE)
+                .resourceType(ResourceType.FOLDER)
+                .targetId(folderId)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @Transactional
+    public void deletePermanent(String folderId) throws java.io.IOException {
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+
+        UserRights rights = rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folderId)
+                .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
+
+        if (rights.getRightsType() != FileRights.ADMIN) {
+            throw new in.lazygod.exception.ForbiddenException("action.not.authorized");
+        }
+
+        deleteFolderRecursive(folder);
+
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.DELETE)
+                .resourceType(ResourceType.FOLDER)
+                .targetId(folderId)
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    private void moveFolderRecursive(Folder folder, boolean toTrash) {
+        folder.setTrashed(toTrash);
+        folder.setTrashedOn(toTrash ? LocalDateTime.now() : null);
+        folderRepository.save(folder);
+
+        var rights = rightsRepository.findAllByParentFolderIdAndResourceType(folder.getFolderId(), ResourceType.FOLDER);
+        for (var r : rights) {
+            r.setActive(!toTrash);
+            r.setUpdatedOn(LocalDateTime.now());
+        }
+        rightsRepository.saveAll(rights);
+
+        var files = fileRepository.findByParentFolder(folder);
+        for (var f : files) {
+            if (toTrash) {
+                f.setTrashed(true);
+                f.setTrashedOn(LocalDateTime.now());
+            } else {
+                f.setTrashed(false);
+                f.setTrashedOn(null);
+            }
+            fileRepository.save(f);
+            var fr = rightsRepository.findAllByFileIdAndResourceType(f.getFileId(), ResourceType.FILE);
+            for (var r : fr) {
+                r.setActive(!toTrash);
+                r.setUpdatedOn(LocalDateTime.now());
+            }
+            rightsRepository.saveAll(fr);
+        }
+
+        var children = folderRepository.findByParentFolder(folder);
+        for (var child : children) {
+            moveFolderRecursive(child, toTrash);
+        }
+    }
+
+    private void deleteFolderRecursive(Folder folder) throws java.io.IOException {
+        var files = fileRepository.findByParentFolder(folder);
+        for (var f : files) {
+            fileService.deletePermanent(f.getFileId());
+        }
+
+        var children = folderRepository.findByParentFolder(folder);
+        for (var child : children) {
+            deleteFolderRecursive(child);
+        }
+
+        folder.setActive(false);
+        folderRepository.save(folder);
+
+        var rights = rightsRepository.findAllByParentFolderIdAndResourceType(folder.getFolderId(), ResourceType.FOLDER);
+        for (var r : rights) {
+            r.setActive(false);
+            r.setUpdatedOn(LocalDateTime.now());
+        }
+        rightsRepository.saveAll(rights);
     }
 }

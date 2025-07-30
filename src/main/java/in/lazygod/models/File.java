@@ -47,6 +47,8 @@ public class File {
     private String mimeType;
 
     private boolean isActive;
+    private boolean trashed;
+    private LocalDateTime trashedOn;
     private LocalDateTime createdOn;
     private LocalDateTime updatedOn;
 }

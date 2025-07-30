@@ -58,3 +58,7 @@ snowflake:
 
 encryption:
   secret: ChangeThisSecretKey123
+
+trash:
+  retention:
+    days: 30
