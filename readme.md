@@ -14,6 +14,8 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 - 📂 Folder creation and listing
 - 🗂️ Storage management endpoints
 - 👥 Connection requests and WebSocket chat
+- 📨 Recent messages history with TTL-based storage
+- 👥 Roster management cached with LRU policy
 - 🔐 Grant/revoke rights on files and folders
 - 📝 API logging with Swagger documentation
 - 🧩 Java SDK for client integrations

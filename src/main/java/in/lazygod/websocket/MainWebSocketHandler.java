@@ -5,6 +5,7 @@ import in.lazygod.websocket.handlers.HandlerInitializer;
 import in.lazygod.websocket.handlers.HandlerRegistry;
 import in.lazygod.websocket.handlers.WsMessageHandler;
 import in.lazygod.websocket.manager.UserSessionManager;
+import in.lazygod.websocket.manager.RosterManager;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.SessionWrapper;
 import in.lazygod.websocket.service.ChatService;
@@ -27,6 +28,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
     private final HandlerRegistry registry;
     private final @Qualifier("wsExecutor") Executor executor;
     private final ChatService chatService;
+    private final RosterManager rosterManager;
     private final ObjectMapper mapper = new ObjectMapper();
 
     static {
@@ -38,6 +40,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
         SessionWrapper wrapper = UserSessionManager.getInstance().register(session);
         if (wrapper != null) {
             chatService.deliverPending(wrapper.getUserWrapper().getUsername());
+            rosterManager.sessionJoined(wrapper.getUserWrapper().getUsername());
         }
     }
 
@@ -70,6 +73,10 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        SessionWrapper wrapper = UserSessionManager.getInstance().find(session);
+        if (wrapper != null) {
+            rosterManager.sessionLeft(wrapper.getUserWrapper().getUsername());
+        }
         UserSessionManager.getInstance().close(session);
     }
 }
