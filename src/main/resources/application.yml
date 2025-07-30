@@ -49,5 +49,9 @@ system:
     email: admin@example.com
     password: admin123
 
+admin:
+  server:
+    port: 9090
+
 snowflake:
   node-id: 1
