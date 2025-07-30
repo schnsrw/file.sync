@@ -1,7 +1,7 @@
 package in.lazygod.websocket.handlers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import in.lazygod.util.JsonUtil;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.SessionWrapper;
 
@@ -11,7 +11,7 @@ import in.lazygod.websocket.model.SessionWrapper;
 
 public class FeatureHandler implements WsMessageHandler {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final com.fasterxml.jackson.databind.ObjectMapper mapper = JsonUtil.MAPPER;
 
     @Override
     public String type() {

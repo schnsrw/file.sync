@@ -1,6 +1,6 @@
 package in.lazygod.websocket.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import in.lazygod.util.JsonUtil;
 import lombok.Getter;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -12,7 +12,7 @@ public class UserWrapper {
 
     private final String username;
     private final Set<SessionWrapper> sessions = ConcurrentHashMap.newKeySet();
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final com.fasterxml.jackson.databind.ObjectMapper mapper = JsonUtil.MAPPER;
 
     public UserWrapper(String username) {
         this.username = username;

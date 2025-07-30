@@ -1,6 +1,6 @@
 package in.lazygod.stoageUtils;
 
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -76,10 +76,8 @@ public class S3Storage implements StorageImpl {
                 .key(key)
                 .build();
 
-        try (var in = s3Client.getObject(request)) {
-            byte[] data = in.readAllBytes();
-            return new ByteArrayResource(data);
-        }
+        var stream = s3Client.getObject(request);
+        return new InputStreamResource(stream);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package in.lazygod.websocket.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import in.lazygod.util.JsonUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.model.ChatMessage;
@@ -19,7 +19,7 @@ import java.util.List;
 public class ChatService {
     private final ChatMessageRepository repository;
     private final RecentMessageService recentService;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final com.fasterxml.jackson.databind.ObjectMapper mapper = JsonUtil.MAPPER;
 
     public void sendMessage(String from, String to, String text) {
         ChatMessage message = ChatMessage.builder()
