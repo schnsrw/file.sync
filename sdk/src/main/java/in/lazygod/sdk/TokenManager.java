@@ -52,10 +52,7 @@ public class TokenManager {
         HttpResponse<String> resp = client.send(http, HttpResponse.BodyHandlers.ofString());
         if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
             AuthResponse tokens = mapper.readValue(resp.body(), AuthResponse.class);
-            this.accessToken = tokens.getAccessToken();
-            this.refreshToken = tokens.getRefreshToken();
-            // crude expiration assumption: 14 minutes
-            this.expiresAt = Instant.now().plusSeconds(14 * 60);
+            setTokens(tokens.getAccessToken(), tokens.getRefreshToken());
         } else {
             throw new RuntimeException("Auth failed: " + resp.statusCode());
         }
@@ -72,11 +69,15 @@ public class TokenManager {
         HttpResponse<String> resp = client.send(http, HttpResponse.BodyHandlers.ofString());
         if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
             RefreshTokenResponse tokens = mapper.readValue(resp.body(), RefreshTokenResponse.class);
-            this.accessToken = tokens.getAccessToken();
-            this.refreshToken = tokens.getRefreshToken();
-            this.expiresAt = Instant.now().plusSeconds(14 * 60);
+            setTokens(tokens.getAccessToken(), tokens.getRefreshToken());
         } else {
             login();
         }
+    }
+
+    public void setTokens(String access, String refresh) {
+        this.accessToken = access;
+        this.refreshToken = refresh;
+        this.expiresAt = Instant.now().plusSeconds(14 * 60);
     }
 }
