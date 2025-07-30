@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Logs</title>
+</head>
+<body>
+<h2>Server Logs</h2>
+<pre th:text="${#strings.listJoin(logLines, '\n')}"></pre>
+<p><a th:href="@{/admin}">Back</a></p>
+</body>
+</html>
