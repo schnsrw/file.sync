@@ -10,5 +10,7 @@ import java.time.LocalDateTime;
 public interface FileRepository extends JpaRepository<File, String> {
     List<File> findByParentFolder(Folder parentFolder);
 
+    List<File> findByParentFolderAndIsActiveTrueAndTrashedFalse(Folder parentFolder);
+
     List<File> findByTrashedIsTrueAndTrashedOnBefore(LocalDateTime time);
 }

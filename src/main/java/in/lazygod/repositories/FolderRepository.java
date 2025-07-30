@@ -9,5 +9,7 @@ import java.time.LocalDateTime;
 public interface FolderRepository extends JpaRepository<Folder, String> {
     List<Folder> findByParentFolder(Folder parentFolder);
 
+    List<Folder> findByParentFolderAndIsActiveTrueAndTrashedFalse(Folder parentFolder);
+
     List<Folder> findByTrashedIsTrueAndTrashedOnBefore(LocalDateTime time);
 }

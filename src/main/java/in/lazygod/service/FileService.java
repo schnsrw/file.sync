@@ -43,6 +43,10 @@ public class FileService {
                 folderRepository.findById(user.getUsername()).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"))
                 : folderRepository.findById(folderId).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
 
+        if (folder.isTrashed()) {
+            throw new in.lazygod.exception.ForbiddenException("resource.in.trash");
+        }
+
         UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), folder.getFolderId(), ResourceType.FOLDER)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
@@ -118,6 +122,10 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
 
+        if (file.isTrashed()) {
+            throw new in.lazygod.exception.ForbiddenException("resource.in.trash");
+        }
+
         UserRights rights = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), file.getFileId(), ResourceType.FILE)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
@@ -138,6 +146,13 @@ public class FileService {
     public void markFavorite(String fileId, boolean fav) {
 
         User user = SecurityContextHolderUtil.getCurrentUser();
+
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
+
+        if (file.isTrashed()) {
+            throw new in.lazygod.exception.ForbiddenException("resource.in.trash");
+        }
 
         UserRights rights = rightsRepository.findByUserIdAndFileId(user.getUserId(), fileId)
                 .orElseThrow();

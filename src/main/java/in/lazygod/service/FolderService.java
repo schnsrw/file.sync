@@ -6,6 +6,7 @@ import in.lazygod.enums.ACTIONS;
 import in.lazygod.enums.FileRights;
 import in.lazygod.enums.ResourceType;
 import in.lazygod.models.ActivityLog;
+import in.lazygod.models.File;
 import in.lazygod.models.Folder;
 import in.lazygod.models.User;
 import in.lazygod.models.UserRights;
@@ -46,6 +47,10 @@ public class FolderService {
         Folder parentFolder = parentId == null || parentId.isBlank() ?
                 folderRepository.findById(user.getUsername()).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"))
                 : folderRepository.findById(parentId).orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+
+        if (parentFolder.isTrashed()) {
+            throw new in.lazygod.exception.ForbiddenException("resource.in.trash");
+        }
 
         UserRights folderRight = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), parentFolder.getFolderId(), ResourceType.FOLDER)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
@@ -116,6 +121,13 @@ public class FolderService {
     @Transactional
     public void markFavourite(String folderId, boolean fav) {
         User user = SecurityContextHolderUtil.getCurrentUser();
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+
+        if (folder.isTrashed()) {
+            throw new in.lazygod.exception.ForbiddenException("resource.in.trash");
+        }
+
         UserRights rights = rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folderId)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("not.authorized"));
 
@@ -142,13 +154,17 @@ public class FolderService {
         Folder folder = folderRepository.findById(targetId)
                 .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
 
+        if (folder.isTrashed()) {
+            throw new in.lazygod.exception.ForbiddenException("resource.in.trash");
+        }
+
         rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folder.getFolderId())
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
         Pageable pageable = PageRequest.of(page, size);
 
         // Fetch sub-folders visible to user
-        var allSubFolders = folderRepository.findByParentFolder(folder);
+        var allSubFolders = folderRepository.findByParentFolderAndIsActiveTrueAndTrashedFalse(folder);
         var accessibleFolders = allSubFolders.stream()
                 .filter(f -> rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), f.getFolderId()).isPresent())
                 .skip((long) page * size)
@@ -159,7 +175,10 @@ public class FolderService {
         var fileRights = rightsRepository
                 .findAllByUserIdAndParentFolderIdAndResourceType(user.getUserId(), folder.getFolderId(), ResourceType.FILE, pageable);
         var fileIds = fileRights.getContent().stream().map(UserRights::getFileId).toList();
-        var files = fileRepository.findAllById(fileIds);
+        var files = fileRepository.findAllById(fileIds).stream()
+                .filter(File::isActive)
+                .filter(f -> !f.isTrashed())
+                .toList();
 
         activityRepository.save(ActivityLog.builder()
                 .activityId(idGenerator.nextId())
