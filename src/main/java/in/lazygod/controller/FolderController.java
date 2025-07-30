@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/folder")
@@ -42,7 +43,7 @@ public class FolderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") String folderId) throws java.io.IOException {
+    public ResponseEntity<Void> delete(@PathVariable("id") String folderId) throws IOException {
         folderService.deletePermanent(folderId);
         return ResponseEntity.ok().build();
     }

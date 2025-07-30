@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.io.IOException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -225,7 +226,7 @@ public class FolderService {
     }
 
     @Transactional
-    public void deletePermanent(String folderId) throws java.io.IOException {
+    public void deletePermanent(String folderId) throws IOException {
         User user = SecurityContextHolderUtil.getCurrentUser();
 
         Folder folder = folderRepository.findById(folderId)
@@ -286,7 +287,7 @@ public class FolderService {
         }
     }
 
-    private void deleteFolderRecursive(Folder folder) throws java.io.IOException {
+    private void deleteFolderRecursive(Folder folder) throws IOException {
         var files = fileRepository.findByParentFolder(folder);
         for (var f : files) {
             fileService.deletePermanent(f.getFileId());
