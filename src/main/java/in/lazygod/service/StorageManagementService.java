@@ -12,4 +12,6 @@ public interface StorageManagementService {
     Storage createStorage(Storage storage);
 
     List<Storage> listStorages();
+
+    boolean testCredentials(Storage storage);
 }

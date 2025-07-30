@@ -10,6 +10,7 @@ import in.lazygod.repositories.StorageRepository;
 import in.lazygod.repositories.UserRepository;
 import in.lazygod.repositories.UserRightsRepository;
 import in.lazygod.security.JwtUtil;
+import in.lazygod.util.EncryptionUtil;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -80,12 +81,16 @@ public class FileManagerApplication implements ApplicationRunner {
     @Value("${jwt.expiration.hr}")
     private long jwtExpirationHr;
 
+    @Value("${encryption.secret}")
+    private String encryptionKey;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
         JwtUtil.SECRET_KEY = jwtKey;
         JwtUtil.EXPIRATION = jwtExpirationHr * 1000 * 60 * 60;
         JwtUtil.key = Keys.hmacShaKeyFor(JwtUtil.SECRET_KEY.getBytes());
+        EncryptionUtil.setSecret(encryptionKey);
 
         Optional<User> existing = userRepository.findByUsername(username);
 

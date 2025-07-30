@@ -2,6 +2,7 @@ package in.lazygod.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import in.lazygod.converter.EncryptedStringConverter;
 import in.lazygod.enums.StorageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,8 +45,10 @@ public class Storage {
     private LocalDateTime updatedOn;
 
     @JsonIgnore
+    @Convert(converter = EncryptedStringConverter.class)
     private String accessKey;
 
     @JsonIgnore
+    @Convert(converter = EncryptedStringConverter.class)
     private String accessId;
 }

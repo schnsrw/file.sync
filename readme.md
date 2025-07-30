@@ -105,6 +105,22 @@ docker-compose -f docker-compose.dev.yml up -d
 - Storage configuration APIs
 - Java SDK skeleton for clients
 
+## 📖 Storage Setup
+
+You can attach AWS S3 buckets as additional storage locations.
+
+1. Send a `POST /storage` request with `storageType` set to `S3`. Use the bucket
+   name in `basePath` and provide your AWS credentials in `accessId` and
+   `accessKey`.
+2. Verify the credentials using `POST /storage/test`. This endpoint uploads and
+   deletes a temporary file to ensure the provided details work. It works for all
+   supported storage types.
+3. Grant users or groups access rights on the new storage via the rights APIs.
+
+Credentials are encrypted before being stored in the database. When using S3 the
+application generates presigned URLs so files are uploaded and downloaded
+directly from S3 without passing through the server.
+
 ## 🚧 In Pipeline
 
 - File and folder deletion endpoints

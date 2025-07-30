@@ -30,4 +30,13 @@ public class StorageController {
         var list = storageManagementService.listStorages();
         return ResponseEntity.ok(list);
     }
+
+    @PostMapping("/test")
+    public ResponseEntity<Void> test(@RequestBody Storage storage) {
+        boolean ok = storageManagementService.testCredentials(storage);
+        if (ok) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
 }

@@ -55,3 +55,6 @@ admin:
 
 snowflake:
   node-id: 1
+
+encryption:
+  secret: ChangeThisSecretKey123
