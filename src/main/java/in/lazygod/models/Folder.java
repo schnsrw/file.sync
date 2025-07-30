@@ -29,6 +29,8 @@ public class Folder {
     private Folder parentFolder;
 
     private boolean isActive;
+    private boolean trashed;
+    private LocalDateTime trashedOn;
 
     private String displayName;
 

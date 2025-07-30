@@ -52,4 +52,22 @@ public class FileController {
         fileService.markFavorite(fileId, fav);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{id}/trash")
+    public ResponseEntity<Void> trash(@PathVariable("id") String fileId) throws IOException {
+        fileService.moveToTrash(fileId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<Void> restore(@PathVariable("id") String fileId) {
+        fileService.restore(fileId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") String fileId) throws IOException {
+        fileService.deletePermanent(fileId);
+        return ResponseEntity.ok().build();
+    }
 }

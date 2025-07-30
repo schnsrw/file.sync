@@ -29,6 +29,24 @@ public class FolderController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{id}/trash")
+    public ResponseEntity<Void> trash(@PathVariable("id") String folderId) {
+        folderService.moveToTrash(folderId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<Void> restore(@PathVariable("id") String folderId) {
+        folderService.restore(folderId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") String folderId) throws java.io.IOException {
+        folderService.deletePermanent(folderId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/list")
     public ResponseEntity<FolderContent> list(@RequestParam(required = false) String folderId,
                                               @RequestParam(defaultValue = "0") int page,
