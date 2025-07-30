@@ -63,6 +63,17 @@ public class UserSessionManager {
         if (wrapper != null) wrapper.send(packet);
     }
 
+    /**
+     * Remove closed WebSocket sessions and their users from memory.
+     * This prevents accumulation of stale sessions when clients
+     * disconnect unexpectedly.
+     */
+    public void cleanupInactiveSessions() {
+        SESSION_MAP.keySet().stream()
+                .filter(session -> !session.isOpen())
+                .forEach(this::close);
+    }
+
     private String extractToken(String query) {
         for (String param : query.split("&")) {
             if (param.startsWith("token=")) return param.substring(6);
