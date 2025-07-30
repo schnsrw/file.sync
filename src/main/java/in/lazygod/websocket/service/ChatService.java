@@ -6,6 +6,7 @@ import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.model.ChatMessage;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.repositories.ChatMessageRepository;
+import in.lazygod.websocket.service.RecentMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatMessageRepository repository;
+    private final RecentMessageService recentService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public void sendMessage(String from, String to, String text) {
@@ -29,6 +31,7 @@ public class ChatService {
                 .delivered(false)
                 .build();
         repository.save(message);
+        recentService.ingest(message.getConversationId(), from, to, text);
         if (UserSessionManager.getInstance().isOnline(to)) {
             deliverMessage(message);
         }
