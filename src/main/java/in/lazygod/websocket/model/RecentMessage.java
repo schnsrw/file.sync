@@ -25,6 +25,5 @@ public class RecentMessage {
     private String from;
     private String to;
     private String content;
-    @Indexed(expireAfterSeconds = 604800) // 7 days
     private Instant timestamp;
 }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +36,10 @@ public class RecentMessagesHandler implements WsMessageHandler {
         if (!payload.has("user")) return;
         String other = payload.get("user").asText();
         String me = wrapper.getUserWrapper().getUsername();
-        List<RecentMessage> msgs = service.recent(me, other, 50);
+        Instant before = payload.has("before") ?
+                Instant.ofEpochMilli(payload.get("before").asLong()) :
+                Instant.now();
+        List<RecentMessage> msgs = service.recent(me, other, before, 50);
         ArrayNode arr = mapper.valueToTree(msgs);
         wrapper.sendAsync(Packet.builder()
                 .from("system")

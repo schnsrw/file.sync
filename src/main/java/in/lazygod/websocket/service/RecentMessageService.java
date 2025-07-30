@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +26,10 @@ public class RecentMessageService {
         repository.save(msg);
     }
 
-    public List<RecentMessage> recent(String userA, String userB, int limit) {
+    public List<RecentMessage> recent(String userA, String userB, Instant before, int limit) {
         String conv = conversationId(userA, userB);
-        return repository.findTop50ByConversationIdOrderByTimestampDesc(conv);
+        Pageable pageable = PageRequest.of(0, limit);
+        return repository.findByConversationIdAndTimestampBeforeOrderByTimestampDesc(conv, before, pageable);
     }
 
     private String conversationId(String a, String b) {
