@@ -12,29 +12,53 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class WebSocketClient implements Listener {
     private final URI uri;
     private final HttpClient client;
     private final ObjectMapper mapper = new ObjectMapper();
-    private WebSocket socket;
+    private volatile WebSocket socket;
     private final Map<String, PacketHandler> handlers = new ConcurrentHashMap<>();
+    private Supplier<String> tokenSupplier;
+    private volatile boolean disconnectRequested = false;
+    private long reconnectDelayMs = 5000;
 
     public WebSocketClient(String uri) {
         this.uri = URI.create(uri);
         this.client = HttpClient.newHttpClient();
     }
 
-    public CompletableFuture<Void> connect(String token) {
-        return client.newWebSocketBuilder()
-                .header("Authorization", "Bearer " + token)
-                .buildAsync(uri, this)
+    public void setTokenSupplier(Supplier<String> supplier) {
+        this.tokenSupplier = supplier;
+    }
+
+    public CompletableFuture<Void> connect() {
+        disconnectRequested = false;
+        return connectInternal();
+    }
+
+    private CompletableFuture<Void> connectInternal() {
+        String token = tokenSupplier == null ? null : tokenSupplier.get();
+        HttpClient.Builder builder = client.newWebSocketBuilder();
+        if (token != null) {
+            builder.header("Authorization", "Bearer " + token);
+        }
+        return builder.buildAsync(uri, this)
                 .thenAccept(ws -> this.socket = ws)
                 .thenRun(() -> send(new Packet("features", null)));
     }
 
     public void registerHandler(String type, PacketHandler handler) {
         handlers.put(type, handler);
+    }
+
+    public void close() {
+        disconnectRequested = true;
+        if (socket != null) {
+            socket.sendClose(WebSocket.NORMAL_CLOSURE, "bye");
+        }
     }
 
     public void send(Packet packet) {
@@ -64,5 +88,27 @@ public class WebSocketClient implements Listener {
             e.printStackTrace();
         }
         return Listener.super.onText(webSocket, data, last);
+    }
+
+    @Override
+    public void onError(WebSocket webSocket, Throwable error) {
+        Listener.super.onError(webSocket, error);
+        scheduleReconnect();
+    }
+
+    @Override
+    public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+        CompletionStage<?> stage = Listener.super.onClose(webSocket, statusCode, reason);
+        socket = null;
+        if (!disconnectRequested) {
+            scheduleReconnect();
+        }
+        return stage;
+    }
+
+    private void scheduleReconnect() {
+        if (disconnectRequested) return;
+        CompletableFuture.delayedExecutor(reconnectDelayMs, TimeUnit.MILLISECONDS)
+                .execute(this::connectInternal);
     }
 }
