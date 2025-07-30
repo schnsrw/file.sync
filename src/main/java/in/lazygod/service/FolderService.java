@@ -159,6 +159,15 @@ public class FolderService {
         var fileIds = fileRights.getContent().stream().map(UserRights::getFileId).toList();
         var files = fileRepository.findAllById(fileIds);
 
+        activityRepository.save(ActivityLog.builder()
+                .activityId(idGenerator.nextId())
+                .userId(user.getUserId())
+                .action(ACTIONS.READ)
+                .resourceType(ResourceType.FOLDER)
+                .targetId(folder.getFolderId())
+                .timestamp(LocalDateTime.now())
+                .build());
+
         return new FolderContent(accessibleFolders, files);
     }
 }
