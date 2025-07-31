@@ -7,6 +7,9 @@ server:
       enabled: true
 
 spring:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
   application:
     name: filemanager
   messages:
@@ -64,11 +67,6 @@ ratelimit:
   limit: 60
 cache:
   ttl: 60
-
-spring:
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
 
 roster:
   ttl:
