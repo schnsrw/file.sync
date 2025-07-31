@@ -15,6 +15,9 @@ import in.lazygod.stoageUtils.StorageImpl;
 import in.lazygod.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +37,18 @@ public class FileService {
     private final SnowflakeIdGenerator idGenerator;
     private final FolderRepository folderRepository;
 
+    /**
+     * Retrieve a file by id, cached for faster repeated access.
+     */
+    @Cacheable(value = "files", key = "#fileId")
+    public File getFile(String fileId) {
+        return fileRepository.findById(fileId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
+    }
+
     @Transactional
+    @CachePut(value = "files", key = "#result.fileId")
+    @CacheEvict(value = "rights", allEntries = true)
     public File upload(MultipartFile file, String folderId) throws IOException {
 
         User user = SecurityContextHolderUtil.getCurrentUser();
@@ -115,8 +129,7 @@ public class FileService {
     public FileResponse download(String fileId) throws IOException {
         User user = SecurityContextHolderUtil.getCurrentUser();
 
-        File file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("resource.not.found"));
+        File file = getFile(fileId);
 
         UserRights rights = rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), file.getFileId(), ResourceType.FILE)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
@@ -135,6 +148,7 @@ public class FileService {
     }
 
     @Transactional
+    @CacheEvict(value = "rights", allEntries = true)
     public void markFavorite(String fileId, boolean fav) {
 
         User user = SecurityContextHolderUtil.getCurrentUser();

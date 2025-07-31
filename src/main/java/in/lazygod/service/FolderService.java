@@ -18,6 +18,9 @@ import in.lazygod.util.SnowflakeIdGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,7 +39,18 @@ public class FolderService {
     private final ActivityLogRepository activityRepository;
     private final SnowflakeIdGenerator idGenerator;
 
+    /**
+     * Retrieve a folder by id, cached to speed up repeated accesses.
+     */
+    @Cacheable(value = "folders", key = "#folderId")
+    public Folder getFolder(String folderId) {
+        return folderRepository.findById(folderId)
+                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+    }
+
     @Transactional
+    @CachePut(value = "folders", key = "#result.folderId")
+    @CacheEvict(value = "rights", allEntries = true)
     public Folder createFolder(String parentId, String folderName) {
 
         User user = SecurityContextHolderUtil.getCurrentUser();
@@ -112,6 +126,7 @@ public class FolderService {
     }
 
     @Transactional
+    @CacheEvict(value = "rights", allEntries = true)
     public void markFavourite(String folderId, boolean fav) {
         User user = SecurityContextHolderUtil.getCurrentUser();
         UserRights rights = rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folderId)
@@ -137,8 +152,7 @@ public class FolderService {
 
         String targetId = (folderId == null || folderId.isBlank()) ? user.getUsername() : folderId;
 
-        Folder folder = folderRepository.findById(targetId)
-                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("folder.not.found"));
+        Folder folder = getFolder(targetId);
 
         rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folder.getFolderId())
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));

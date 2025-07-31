@@ -1,23 +1,26 @@
 package in.lazygod.websocket.manager;
 
 import in.lazygod.util.cache.Cache;
-import in.lazygod.util.cache.LruCache;
+import in.lazygod.util.cache.RedisCache;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Keeps a cached map of user rosters.
+ * Keeps a cached map of user rosters using Redis.
  */
+@Component
 public class RosterManager {
-    private static final RosterManager INSTANCE = new RosterManager();
-    private final Cache<String, Set<String>> rosterCache = new LruCache<>(1000, 60_000);
 
-    private RosterManager() {}
+    private final Cache<String, Set<String>> rosterCache;
 
-    public static RosterManager getInstance() {
-        return INSTANCE;
+    public RosterManager(RedisTemplate<String, Object> template,
+                         @Value("${roster.ttl.ms:60000}") long ttl) {
+        this.rosterCache = new RedisCache<>(template, "roster:", ttl);
     }
 
     public synchronized void sessionJoined(String username) {
@@ -26,7 +29,6 @@ public class RosterManager {
             roster = new HashSet<>();
             rosterCache.put(username, roster);
         }
-        // add this user to others' rosters
         for (String key : rosterCache.keys()) {
             if (!key.equals(username)) {
                 Set<String> r = rosterCache.get(key);
