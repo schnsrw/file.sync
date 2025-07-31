@@ -32,6 +32,7 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 - **Amazon S3 / MinIO**
 - **Docker**, **OpenAPI / Swagger**
 - Optional: **MongoDB**, **Redis**, **Collabora Online**, **GraphQL**
+- 🗄️ Redis-backed caches for user data, rosters, files, folders and rights
 
 ---
 
@@ -64,6 +65,9 @@ docker-compose up --build
 The application will use the default MySQL configuration from `application.yml`.
 Database credentials can be tweaked via the `DB_*` environment variables in
 `docker-compose.yml`.
+
+Redis is bundled in the compose file for caching. Ensure the Redis container is
+running if you start the application without Docker Compose.
 
 For local development without running the application container you can start
 the supporting databases using:

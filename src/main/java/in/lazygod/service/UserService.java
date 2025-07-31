@@ -11,6 +11,7 @@ import in.lazygod.dto.UserUpdateRequest;
 import in.lazygod.websocket.handlers.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -63,6 +64,7 @@ public class UserService {
         return true;
     }
 
+    @CacheEvict(value = "user-details", key = "T(in.lazygod.security.SecurityContextHolderUtil).getCurrentUser().getUsername()")
     public User updateProfile(UserUpdateRequest request) {
         User current = SecurityContextHolderUtil.getCurrentUser();
         if (request.getEmail() != null) {

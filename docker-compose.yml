@@ -16,6 +16,7 @@ services:
     depends_on:
       - db
       - mongo
+      - redis
     ports:
       - "8080:8080"
     environment:
@@ -32,6 +33,14 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 volumes:
   db_data:
   mongo_data:
+  redis_data:

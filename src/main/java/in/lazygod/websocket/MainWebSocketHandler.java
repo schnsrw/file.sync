@@ -30,11 +30,14 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
     private final RosterManager rosterManager;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public MainWebSocketHandler(HandlerRegistry registry,@Qualifier("wsExecutor")  Executor executor, ChatService chatService) {
+    public MainWebSocketHandler(HandlerRegistry registry,
+                               @Qualifier("wsExecutor") Executor executor,
+                               ChatService chatService,
+                               RosterManager rosterManager) {
         this.registry = registry;
         this.executor = executor;
         this.chatService = chatService;
-        this.rosterManager = RosterManager.getInstance();
+        this.rosterManager = rosterManager;
     }
 
     static {
