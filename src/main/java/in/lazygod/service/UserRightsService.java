@@ -1,6 +1,7 @@
 package in.lazygod.service;
 
 import in.lazygod.dto.GrantRightsRequest;
+import in.lazygod.dto.RightsInfo;
 import in.lazygod.enums.ACTIONS;
 import in.lazygod.enums.FileRights;
 import in.lazygod.enums.ResourceType;

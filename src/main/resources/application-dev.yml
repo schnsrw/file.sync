@@ -9,6 +9,10 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path : /h2-console
   data:
     mongodb:
       uri: mongodb://localhost:27017/filedb
@@ -16,9 +20,10 @@ logging:
   level:
     root: INFO
     in.lazygod: DEBUG
+  
 
 jwt:
-  secret : YourSecretKeyHereYourSecretKeyHere
+  secret : YourSecretKeyHereYourSecretKeyHereYourSecretKeyHereYourSecretKeyHere
   expiration:
     hr: 10
 
@@ -44,7 +49,7 @@ snowflake:
   node-id: 1
 
 encryption:
-  secret: ChangeThisSecretKey123
+  secret: 12345678901234567890123456789012
 
 ratelimit:
   enabled: true

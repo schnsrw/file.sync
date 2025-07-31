@@ -22,14 +22,20 @@ import java.util.concurrent.Executor;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class MainWebSocketHandler extends TextWebSocketHandler {
 
     private final HandlerRegistry registry;
-    private final @Qualifier("wsExecutor") Executor executor;
+    private final Executor executor;
     private final ChatService chatService;
     private final RosterManager rosterManager;
     private final ObjectMapper mapper = new ObjectMapper();
+
+    public MainWebSocketHandler(HandlerRegistry registry,@Qualifier("wsExecutor")  Executor executor, ChatService chatService) {
+        this.registry = registry;
+        this.executor = executor;
+        this.chatService = chatService;
+        this.rosterManager = RosterManager.getInstance();
+    }
 
     static {
         HandlerInitializer.registerAll();
