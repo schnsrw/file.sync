@@ -23,7 +23,7 @@ Jackson for JSON mapping.
 Build and install the SDK locally:
 
 ```bash
-mvn -f sdk/pom.xml install
+mvn -f sdk/java/pom.xml install
 ```
 
 Then declare the dependency in your `pom.xml`:
@@ -54,4 +54,4 @@ client.sendChatMessage("bob", "Hello there!");
 client.sendPing();
 ```
 
-See [docs/sdk-user-guide.md](../docs/sdk-user-guide.md) for a more detailed guide.
+See [docs/sdk-user-guide.md](../../docs/sdk-user-guide.md) for a more detailed guide.

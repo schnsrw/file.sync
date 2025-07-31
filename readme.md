@@ -18,7 +18,7 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 - 👥 Roster management cached with LRU policy
 - 🔐 Grant/revoke rights on files and folders
 - 📝 API logging with Swagger documentation
-- 🧩 Java SDK for client integrations
+- 🧩 Java and JavaScript SDKs for client integrations
 - 🐳 Dockerized application
 - 🔄 Token refresh endpoint
 - 📜 Swagger UI docs (`/swagger-ui.html`)
@@ -107,7 +107,7 @@ docker-compose -f docker-compose.dev.yml up -d
 - Rights management for files and folders
 - Connection requests and WebSocket chat
 - Storage configuration APIs
-- Java SDK skeleton for clients
+- Java and JavaScript SDKs skeleton for clients
 
 ## 📖 Storage Setup
 
