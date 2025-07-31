@@ -8,7 +8,7 @@ It covers registration, OTP verification, login, connection management and WebSo
 1. Build and install the SDK into your local Maven repository:
 
    ```bash
-   mvn -f sdk/pom.xml install
+   mvn -f sdk/java/pom.xml install
    ```
 
 2. Add the dependency to your application `pom.xml`:
