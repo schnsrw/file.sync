@@ -54,3 +54,6 @@ encryption:
 ratelimit:
   enabled: true
   limit: 60
+
+cluster:
+  enabled: false

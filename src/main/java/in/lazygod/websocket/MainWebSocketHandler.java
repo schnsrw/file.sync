@@ -9,6 +9,7 @@ import in.lazygod.websocket.manager.RosterManager;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.SessionWrapper;
 import in.lazygod.websocket.service.ChatService;
+import in.lazygod.cluster.ClusterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,16 +29,19 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
     private final Executor executor;
     private final ChatService chatService;
     private final RosterManager rosterManager;
+    private final ClusterService clusterService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public MainWebSocketHandler(HandlerRegistry registry,
                                @Qualifier("wsExecutor") Executor executor,
                                ChatService chatService,
-                               RosterManager rosterManager) {
+                               RosterManager rosterManager,
+                               ClusterService clusterService) {
         this.registry = registry;
         this.executor = executor;
         this.chatService = chatService;
         this.rosterManager = rosterManager;
+        this.clusterService = clusterService;
     }
 
     static {
@@ -50,6 +54,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
         if (wrapper != null) {
             chatService.deliverPending(wrapper.getUserWrapper().getUsername());
             rosterManager.sessionJoined(wrapper.getUserWrapper().getUsername());
+            clusterService.registerUser(wrapper.getUserWrapper().getUsername());
         }
     }
 
@@ -85,6 +90,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
         SessionWrapper wrapper = UserSessionManager.getInstance().find(session);
         if (wrapper != null) {
             rosterManager.sessionLeft(wrapper.getUserWrapper().getUsername());
+            clusterService.removeUser(wrapper.getUserWrapper().getUsername());
         }
         UserSessionManager.getInstance().close(session);
     }

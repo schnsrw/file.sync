@@ -73,3 +73,6 @@ spring:
 roster:
   ttl:
     ms: 60000
+
+cluster:
+  enabled: false

@@ -7,6 +7,7 @@ import in.lazygod.websocket.model.ChatMessage;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.repositories.ChatMessageRepository;
 import in.lazygod.websocket.service.RecentMessageService;
+import in.lazygod.cluster.ClusterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class ChatService {
     private final ChatMessageRepository repository;
     private final RecentMessageService recentService;
+    private final ClusterService clusterService;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public void sendMessage(String from, String to, String text) {
@@ -34,6 +36,8 @@ public class ChatService {
         recentService.ingest(message.getConversationId(), from, to, text);
         if (UserSessionManager.getInstance().isOnline(to)) {
             deliverMessage(message);
+        } else if (clusterService.isEnabled() && clusterService.userExists(to)) {
+            deliverRemote(message);
         }
     }
 
@@ -50,6 +54,34 @@ public class ChatService {
         payload.put("text", message.getContent());
 
         UserSessionManager.getInstance().sendToUser(message.getTo(),
+                Packet.builder()
+                        .from(message.getFrom())
+                        .to(message.getTo())
+                        .type("chat")
+                        .payload(payload)
+                        .build());
+
+        message.setDelivered(true);
+        repository.save(message);
+
+        ObjectNode receipt = mapper.createObjectNode();
+        receipt.put("id", message.getId());
+        receipt.put("status", "delivered");
+        UserSessionManager.getInstance().sendToUser(message.getFrom(),
+                Packet.builder()
+                        .from("system")
+                        .to(message.getFrom())
+                        .type("receipt")
+                        .payload(receipt)
+                        .build());
+    }
+
+    private void deliverRemote(ChatMessage message) {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("id", message.getId());
+        payload.put("text", message.getContent());
+
+        clusterService.publish(message.getTo(),
                 Packet.builder()
                         .from(message.getFrom())
                         .to(message.getTo())
