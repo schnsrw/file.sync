@@ -30,9 +30,8 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
-        return ResponseEntity.ok(
-                authService.generateTokens(
-                        SecurityContextHolderUtil.getCurrentUser()));
+        return ResponseEntity.ok(authService.generateTokens(
+                userRepository.findByUsername(request.getUsername()).orElseThrow(()->new RuntimeException("user.not.found"))));
     }
 
     @PostMapping("/refresh")

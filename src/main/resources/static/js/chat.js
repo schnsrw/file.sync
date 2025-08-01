@@ -54,11 +54,19 @@ async function loadUsers() {
     const list = document.getElementById('users');
     list.innerHTML = '';
     users.forEach(u => {
-      const btn = document.createElement('button');
+      const btn = document.createElement('div');
+      btn.className = 'user';
       btn.textContent = u.username;
-      btn.onclick = () => { currentChat = u.username; document.getElementById('messages').innerHTML = ''; };
+      btn.onclick = () => {
+        currentChat = u.username;
+        document.getElementById('messages').innerHTML = '';
+        chatHeader.textContent = `Chatting with ${u.username}`;
+
+        // Set active class
+        document.querySelectorAll('#users .user').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+      };
       list.appendChild(btn);
-      list.appendChild(document.createElement('br'));
     });
   } catch (e) {
     console.error(e);

@@ -57,7 +57,7 @@ public class SecurityConfig {
                     return corsConfig;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/error", "/swagger-ui/**", "/v3/api-docs/**","/h2-console/**").permitAll()
+                        .requestMatchers("/ws","/js/**","/chat","/login","/auth/**", "/error", "/swagger-ui/**", "/v3/api-docs/**","/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(AbstractHttpConfigurer::disable)

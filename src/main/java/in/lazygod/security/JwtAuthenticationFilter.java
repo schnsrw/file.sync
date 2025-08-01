@@ -1,5 +1,7 @@
 package in.lazygod.security;
 
+import in.lazygod.repositories.UserRepository;
+import in.lazygod.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -50,6 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 SecurityContextHolderUtil.setCurrentUserName(userDetails.getUsername());
+                SecurityContextHolderUtil.setCurrentUser(userRepository.findByUsername(userDetails.getUsername())
+                        .orElseThrow(()-> new RuntimeException("user.not.found")));
+
             }
         }
 
