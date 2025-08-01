@@ -41,12 +41,20 @@ public class WebSocketClient implements Listener {
 
     private CompletableFuture<Void> connectInternal() {
         String token = tokenSupplier == null ? null : tokenSupplier.get();
-        HttpClient.Builder builder = client.newWebSocketBuilder();
+
+        HttpClient httpClient = HttpClient.newHttpClient();
+        HttpClient.Builder clientBuilder = HttpClient.newBuilder();
+
+        WebSocket.Builder webSocketBuilder = httpClient.newWebSocketBuilder();
         if (token != null) {
-            builder.header("Authorization", "Bearer " + token);
+            webSocketBuilder.header("Authorization", "Bearer " + token);
         }
-        return builder.buildAsync(uri, this)
-                .thenAccept(ws -> this.socket = ws)
+
+        return webSocketBuilder.buildAsync(uri, this)
+                .thenApply(socket -> {
+                    this.socket = socket;
+                    return null;
+                })
                 .thenRun(() -> send(new Packet("features", null)));
     }
 

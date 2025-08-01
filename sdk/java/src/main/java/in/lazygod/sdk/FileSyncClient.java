@@ -29,10 +29,11 @@ public class FileSyncClient {
     private final Set<String> features = new HashSet<>();
     private final Map<String, PacketHandler> handlers = new HashMap<>();
 
-    private FileSyncClient(String baseUrl, String username, String password) {
+    private FileSyncClient(String baseUrl, String username, String password) throws IOException, InterruptedException {
         this.baseUrl = baseUrl;
         this.client = HttpClient.newHttpClient();
         this.tokenManager = new TokenManager(baseUrl, username, password);
+        tokenManager.getAccessToken();
     }
 
     public static Builder builder() { return new Builder(); }
@@ -95,8 +96,16 @@ public class FileSyncClient {
 
     public synchronized CompletableFuture<Void> connectWebSocket() throws IOException, InterruptedException {
         if (wsClient == null) {
-            wsClient = new WebSocketClient(baseUrl.replaceFirst("http", "ws") + "/ws");
-            wsClient.setTokenSupplier(() -> tokenManager.getAccessToken());
+            wsClient = new WebSocketClient(baseUrl.replaceFirst("http", "ws") + "/ws" + "?token="+tokenManager.getAccessToken());
+            wsClient.setTokenSupplier(() -> {
+                try {
+                    return tokenManager.getAccessToken();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             wsClient.registerHandler("features", (packet, payload) -> {
                 if (payload.isArray()) {
                     payload.forEach(n -> {
@@ -186,7 +195,7 @@ public class FileSyncClient {
         public Builder username(String u) { this.username = u; return this; }
         public Builder password(String p) { this.password = p; return this; }
 
-        public FileSyncClient build() {
+        public FileSyncClient build() throws IOException, InterruptedException {
             return new FileSyncClient(baseUrl, username, password);
         }
     }
