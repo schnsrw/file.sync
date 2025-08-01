@@ -2,14 +2,34 @@ const baseUrl = '';
 let ws = null;
 let currentChat = null;
 
+async function refreshTokens() {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) return false;
+  const resp = await fetch('/auth/refresh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken })
+  });
+  if (!resp.ok) return false;
+  const data = await resp.json();
+  localStorage.setItem('accessToken', data.accessToken);
+  localStorage.setItem('refreshToken', data.refreshTooken || data.refreshToken);
+  return true;
+}
+
 async function api(path, method = 'GET', body) {
-  const token = localStorage.getItem('accessToken');
+  let token = localStorage.getItem('accessToken');
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (body) opts.body = JSON.stringify(body);
-  const resp = await fetch(baseUrl + path, opts);
+  let resp = await fetch(baseUrl + path, opts);
+  if (resp.status === 401 && await refreshTokens()) {
+    token = localStorage.getItem('accessToken');
+    opts.headers['Authorization'] = 'Bearer ' + token;
+    resp = await fetch(baseUrl + path, opts);
+  }
   if (!resp.ok) throw new Error('Request failed');
-  return resp.json();
+  return resp.status === 204 ? null : resp.json();
 }
 
 function connectWs() {
@@ -71,7 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       try {
-        const resp = await fetch('/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+        const resp = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
         if (!resp.ok) throw new Error('login failed');
         const data = await resp.json();
         localStorage.setItem('accessToken', data.accessToken);
