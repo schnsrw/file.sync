@@ -140,6 +140,13 @@ const enriched = await Promise.all(users.map(async u => {
       list.appendChild(btn);
       requestLastSeen(u.username);
     });
+    if (enriched.length > 0) {
+      const first = list.querySelector('.user');
+      if (first) first.click();
+    } else {
+      document.getElementById('chatWith').textContent = '';
+      document.getElementById('userStatus').textContent = '';
+    }
   } catch (e) {
     console.error(e);
   }
