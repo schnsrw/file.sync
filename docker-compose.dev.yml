@@ -27,7 +27,16 @@ services:
     volumes:
       - redis_data:/data
 
+  etherpad:
+    image: etherpad/etherpad
+    restart: always
+    environment:
+      API_KEY: apikey
+    ports:
+      - "9001:9001"
+
 volumes:
   mysql_data:
   mongo_data:
   redis_data:
+  # no volume defined for etherpad; it uses default in-container storage

@@ -17,6 +17,7 @@ services:
       - db
       - mongo
       - redis
+      - etherpad
     ports:
       - "8080:8080"
     environment:
@@ -26,6 +27,8 @@ services:
       DB_USER: root
       DB_PASSWORD: password
       MONGO_URI: mongodb://mongo:27017/filedb
+      ETHERPAD_API_URL: http://etherpad:9001/api/1
+      ETHERPAD_API_KEY: apikey
   mongo:
     image: mongo:7
     restart: always
@@ -40,6 +43,14 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
+  etherpad:
+    image: etherpad/etherpad
+    restart: always
+    environment:
+      API_KEY: apikey
+    ports:
+      - "9001:9001"
 volumes:
   db_data:
   mongo_data:
