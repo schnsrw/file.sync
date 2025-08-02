@@ -94,17 +94,29 @@ function connectWs() {
         }
       }
     } else if (pkt.type === 'call') {
-             if (pkt.payload.type === 'offer') {
-               const modal = document.getElementById('incomingCallModal');
-               const callerNameEl = document.getElementById('callerName');
-               modal.style.display = 'flex';
-               modal.dataset.caller = pkt.from;
-               callerNameEl.textContent = `Incoming call from ${pkt.from}`;
-             }
-           }
+        if (pkt.payload.type === 'offer') {
+
+        console.log('[chat.js] Received call offer from', pkt.from);
+              showIncomingCallModal(pkt.from);
+            } else if (pkt.payload.type === 'hangup') {
+              const modal = document.getElementById('incomingCallModal');
+              if (modal) {
+                modal.style.display = 'none';
+                delete modal.dataset.caller;
+              }
+            }
+      }
 
   };
 }
+
+/*
+callBtn.addEventListener('click', () => {
+  if (currentChat) {
+    window.location.href = `/call?user=${encodeURIComponent(currentChat)}&init=1`;
+  }
+});
+*/
 
 async function loadUsers() {
   try {
@@ -322,39 +334,47 @@ if (modal) {
   }
 });
 
+
 function showIncomingCallModal(callerUsername) {
-  // Defer execution until DOM is fully loaded
-  if (document.readyState !== 'complete') {
-    window.addEventListener('DOMContentLoaded', () => showIncomingCallModal(callerUsername));
-    return;
-  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('incomingCallModal');
+    const callerNameEl = document.getElementById('callerName');
+    const acceptBtn = document.getElementById('acceptCallBtn');
+    const rejectBtn = document.getElementById('rejectCallBtn');
 
-  const modal = document.getElementById('incomingCallModal');
-  const callerNameEl = document.getElementById('callerName');
-  const acceptBtn = document.getElementById('acceptCallBtn');
-  const rejectBtn = document.getElementById('rejectCallBtn');
-
-  if (!modal || !acceptBtn || !rejectBtn || !callerNameEl) {
-    console.error('Call modal elements missing in DOM');
-    return;
-  }
-
-  callerNameEl.textContent = `Incoming call from ${callerUsername}`;
-  modal.style.display = 'flex';
-
-  acceptBtn.onclick = () => {
-    modal.style.display = 'none';
-    window.location.href = `/call?user=${encodeURIComponent(callerUsername)}`;
-  };
-
-  rejectBtn.onclick = () => {
-    modal.style.display = 'none';
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({
-        type: 'call',
-        payload: { to: callerUsername, type: 'hangup' }
-      }));
+    if (!modal || !callerNameEl || !acceptBtn || !rejectBtn) {
+      console.error('[showIncomingCallModal] Elements missing in DOM');
+      return;
     }
-  };
-}
 
+    console.log(`[showIncomingCallModal] Showing modal for ${callerUsername}`);
+    modal.dataset.caller = callerUsername;
+    callerNameEl.textContent = `Incoming call from ${callerUsername}`;
+    modal.style.display = 'flex';
+
+    acceptBtn.onclick = () => {
+      modal.style.display = 'none';
+      const user = modal.dataset.caller;
+      if (user) {
+        window.location.href = `/call?user=${encodeURIComponent(user)}`;
+      }
+    };
+
+    rejectBtn.onclick = () => {
+      modal.style.display = 'none';
+      const user = modal.dataset.caller;
+      if (user && ws?.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'call',
+          payload: { to: user, type: 'hangup' }
+        }));
+      }
+    };
+  });
+
+  // If DOM is already loaded, trigger immediately
+  if (document.readyState === 'complete') {
+    const event = new Event('DOMContentLoaded');
+    document.dispatchEvent(event);
+  }
+}

@@ -137,5 +137,19 @@ async function init() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+const sendOffer = async () => {
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  console.log('[CALL] Sending offer to', remoteUser); // add this log
+  ws.send(JSON.stringify({
+    type: 'call',
+    payload: { to: remoteUser, type: 'offer', offer }
+  }));
+};
 
