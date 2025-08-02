@@ -69,7 +69,12 @@ async function loadUsers() {
     users.forEach(u => {
       const btn = document.createElement('div');
       btn.className = 'user';
-      btn.textContent = u.username;
+      btn.innerHTML = `
+        <div class="user-pic">${u.username.charAt(0).toUpperCase()}</div>
+        <div>${u.username}</div>
+        <div class="status-dot ${u.online ? 'online' : 'offline'}"></div>
+      `;
+
       btn.onclick = async () => {
         currentChat = u.username;
         document.getElementById('messages').innerHTML = '';
@@ -90,12 +95,29 @@ async function loadUsers() {
 }
 
 function showMessage(from, text, id) {
+  const wrapper = document.createElement('div');
+  const isSelf = from === 'me';
+
+  wrapper.className = 'msg-wrapper' + (isSelf ? ' me' : '');
+
+  const avatarLetter = isSelf ? myUsername.charAt(0).toUpperCase() : from.charAt(0).toUpperCase();
+  const profileDiv = `<div class="msg-profile">${avatarLetter}</div>`;
+
   const msgDiv = document.createElement('div');
-  msgDiv.className = 'msg' + (from === 'me' ? ' me' : '');
+  msgDiv.className = 'msg';
   msgDiv.id = id ? 'msg-' + id : '';
-  msgDiv.innerHTML = `<span>${text}</span> <span class="status"></span>`;
-  document.getElementById('messages').appendChild(msgDiv);
+  msgDiv.innerHTML = `<span>${text}</span><div class="status"></div>`;
+
+  // Arrange elements: avatar on right for self, left for others
+  wrapper.innerHTML = isSelf
+    ? msgDiv.outerHTML + profileDiv  // Right-side icon for self
+    : profileDiv + msgDiv.outerHTML; // Left-side icon for others
+
+  document.getElementById('messages').appendChild(wrapper);
+  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
 }
+
+
 
 async function loadHistory(user) {
   try {

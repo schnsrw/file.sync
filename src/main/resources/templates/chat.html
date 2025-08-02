@@ -18,12 +18,84 @@
         }
 
         #users {
-            width: 240px;
+            width: 260px;
             border-right: 1px solid #ccc;
             background-color: #fff;
             padding: 10px;
             overflow-y: auto;
             box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+.msg-wrapper {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.msg-wrapper.me {
+  flex-direction: row-reverse;
+}
+
+.msg-profile {
+  width: 32px;
+  height: 32px;
+  background-color: #6c757d;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.9em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 8px;
+}
+
+        .user {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .user:hover,
+        .user.active {
+            background-color: #e9ecef;
+        }
+
+        .user.active {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .user-pic {
+            width: 36px;
+            height: 36px;
+            background-color: #007bff;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        .online {
+            background-color: green;
+        }
+
+        .offline {
+            background-color: grey;
         }
 
         #chat {
@@ -50,9 +122,18 @@
             overflow-y: auto;
         }
 
+        .msg-wrapper {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .msg-wrapper.me {
+            flex-direction: row-reverse;
+        }
+
         .msg {
             max-width: 60%;
-            margin-bottom: 10px;
             padding: 10px 14px;
             border-radius: 10px;
             background-color: #e4e6eb;
@@ -60,9 +141,22 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        .me {
-            margin-left: auto;
+        .msg-wrapper.me .msg {
             background-color: #d1e7dd;
+        }
+
+        .msg-profile {
+            width: 32px;
+            height: 32px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.9em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
         }
 
         .delivered {
@@ -120,35 +214,37 @@
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 3px;
         }
-
-        #users .user {
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        #users .user:hover,
-        #users .user.active {
-            background-color: #e9ecef;
-        }
-
-        .user.active {
-            font-weight: bold;
-            color: #007bff;
-        }
     </style>
 </head>
 <body>
 <div id="users">
-    <!-- Users are dynamically added -->
+    <!-- Example user -->
+    <div class="user active">
+        <div class="user-pic">A</div>
+        <div>Alice</div>
+        <div class="status-dot online"></div>
+    </div>
+    <div class="user">
+        <div class="user-pic">B</div>
+        <div>Bob</div>
+        <div class="status-dot offline"></div>
+    </div>
 </div>
 
 <div id="chat">
     <div id="chat-header">
-        <span id="chatWith">Select a user</span>
+        <span id="chatWith">Chat with Alice</span>
     </div>
-    <div id="messages"></div>
+    <div id="messages">
+        <div class="msg-wrapper">
+            <div class="msg-profile">A</div>
+            <div class="msg">Hi there! How are you?</div>
+        </div>
+        <div class="msg-wrapper me">
+            <div class="msg-profile">M</div>
+            <div class="msg">I'm good, thanks!</div>
+        </div>
+    </div>
     <div id="input">
         <input id="messageText" type="text" placeholder="Type a message..." />
         <button id="sendBtn">Send</button>

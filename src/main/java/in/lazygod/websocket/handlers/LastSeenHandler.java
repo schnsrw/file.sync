@@ -42,6 +42,7 @@ public class LastSeenHandler implements WsMessageHandler{
                             .type(type())
                             .payload(payload)
                             .build());
+            return;
         }
 
         Optional<Instant> lastSeen = LastSeenManager.getInstance().getLastSeen(to);
@@ -56,6 +57,7 @@ public class LastSeenHandler implements WsMessageHandler{
                             .type(type())
                             .payload(payload)
                             .build());
+            return;
         }
 
         ObjectNode payload = mapper.createObjectNode();
@@ -66,5 +68,6 @@ public class LastSeenHandler implements WsMessageHandler{
                         .type(type())
                         .payload(payload)
                         .build());
+        return;
     }
 }
