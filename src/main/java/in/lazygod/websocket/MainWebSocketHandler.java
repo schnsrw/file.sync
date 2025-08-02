@@ -1,6 +1,7 @@
 package in.lazygod.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import in.lazygod.websocket.handlers.HandlerInitializer;
 import in.lazygod.websocket.handlers.HandlerRegistry;
 import in.lazygod.websocket.handlers.WsMessageHandler;
@@ -8,7 +9,9 @@ import in.lazygod.websocket.manager.LastSeenManager;
 import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.manager.RosterManager;
 import in.lazygod.websocket.model.Packet;
+import in.lazygod.websocket.model.PacketType;
 import in.lazygod.websocket.model.SessionWrapper;
+import in.lazygod.websocket.model.Presence;
 import in.lazygod.websocket.service.ChatService;
 import in.lazygod.cluster.ClusterService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.concurrent.Executor;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -52,10 +56,12 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         SessionWrapper wrapper = UserSessionManager.getInstance().register(session);
         if (wrapper != null) {
-            chatService.deliverPending(wrapper.getUserWrapper().getUsername());
-            rosterManager.sessionJoined(wrapper.getUserWrapper().getUsername());
-            clusterService.registerUser(wrapper.getUserWrapper().getUsername());
-            LastSeenManager.getInstance().setOnline(wrapper.getUserWrapper().getUsername());
+            String username = wrapper.getUserWrapper().getUsername();
+            chatService.deliverPending(username);
+            rosterManager.sessionJoined(username);
+            clusterService.registerUser(username);
+            LastSeenManager.getInstance().setOnline(username);
+            broadcastLastSeen(username, Presence.ONLINE);
         }
     }
 
@@ -90,10 +96,43 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         SessionWrapper wrapper = UserSessionManager.getInstance().find(session);
         if (wrapper != null) {
-            rosterManager.sessionLeft(wrapper.getUserWrapper().getUsername());
-            clusterService.removeUser(wrapper.getUserWrapper().getUsername());
+            String username = wrapper.getUserWrapper().getUsername();
+            UserSessionManager.getInstance().close(session);
+            if (!UserSessionManager.getInstance().isOnline(username)) {
+                broadcastLastSeen(username, Presence.OFFLINE);
+                rosterManager.sessionLeft(username);
+                clusterService.removeUser(username);
+            }
+        } else {
+            UserSessionManager.getInstance().close(session);
         }
-        UserSessionManager.getInstance().close(session);
 
+    }
+
+    private void broadcastLastSeen(String username, Presence presence) {
+        Set<String> roster = rosterManager.getRoster(username);
+        for (String user : roster) {
+            ObjectNode payload = mapper.createObjectNode();
+            payload.put("status", presence.name());
+            if (presence == Presence.OFFLINE) {
+                LastSeenManager.getInstance().getLastSeen(username)
+                        .ifPresent(ls -> payload.put("last-seen", ls.toEpochMilli()));
+            } else {
+                payload.put("last-seen", -1);
+            }
+
+            Packet packet = Packet.builder()
+                    .from(username)
+                    .to(user)
+                    .type(PacketType.LAST_SEEN.value())
+                    .payload(payload)
+                    .build();
+
+            if (UserSessionManager.getInstance().isOnline(user)) {
+                UserSessionManager.getInstance().sendToUser(user, packet);
+            } else if (clusterService.isEnabled() && clusterService.userExists(user)) {
+                clusterService.publish(user, packet);
+            }
+        }
     }
 }
