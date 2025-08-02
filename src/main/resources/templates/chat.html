@@ -3,75 +3,58 @@
 <head>
     <meta charset="UTF-8" />
     <title>Chat</title>
-    <!-- Standalone chat page loaded inside the dashboard iframe -->
+    <link rel="stylesheet" href="/css/dashboard.css" />
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+        }
+
         #main {
             display: flex;
+            height: 100vh;
         }
 
         #users {
-            width: 260px;
-            border-right: 1px solid #ccc;
-            background-color: #fff;
+            width: 280px;
+            border-right: 1px solid #ddd;
+            background-color: #ffffff;
             padding: 10px;
             overflow-y: auto;
-            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
         }
-
-.msg-wrapper {
-  display: flex;
-  align-items: flex-end;
-  margin-bottom: 12px;
-}
-
-.msg-wrapper.me {
-  flex-direction: row-reverse;
-}
-
-.msg-profile {
-  width: 32px;
-  height: 32px;
-  background-color: #6c757d;
-  color: white;
-  border-radius: 50%;
-  font-size: 0.9em;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 8px;
-}
 
         .user {
             display: flex;
             align-items: center;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: background 0.2s;
         }
 
         .user:hover,
         .user.active {
-            background-color: #e9ecef;
-        }
-
-        .user.active {
-            font-weight: bold;
-            color: #007bff;
+            background-color: #f1f3f5;
         }
 
         .user-pic {
             width: 36px;
             height: 36px;
             background-color: #007bff;
-            border-radius: 50%;
             color: white;
-            font-weight: bold;
-            font-size: 1em;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
             margin-right: 10px;
         }
 
@@ -80,10 +63,14 @@
             flex-direction: column;
         }
 
+        .user-info .name {
+            font-weight: 500;
+        }
+
         .user-info .status-text,
         .user-info .last-msg {
             font-size: 0.75em;
-            color: #555;
+            color: #666;
         }
 
         .status-dot {
@@ -105,24 +92,21 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: #f9f9f9;
         }
 
         #chat-header {
-            padding: 12px 16px;
+            padding: 16px;
             background-color: #fff;
-            font-weight: bold;
-            font-size: 1.1em;
-            border-bottom: 1px solid #ccc;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
+            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+            font-size: 1.1rem;
         }
 
         #messages {
             flex: 1;
             padding: 16px;
             overflow-y: auto;
+            background: #f5f6f8;
         }
 
         .msg-wrapper {
@@ -136,9 +120,9 @@
         }
 
         .msg {
-            max-width: 60%;
+            max-width: 65%;
             padding: 10px 14px;
-            border-radius: 10px;
+            border-radius: 12px;
             background-color: #e4e6eb;
             word-wrap: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -162,27 +146,20 @@
             margin: 0 8px;
         }
 
-        .delivered {
-            font-size: 0.75em;
-            color: green;
-            margin-top: 3px;
-            text-align: right;
-        }
-
         #input {
             display: flex;
-            padding: 10px;
+            padding: 12px;
             background-color: #fff;
-            border-top: 1px solid #ccc;
+            border-top: 1px solid #ddd;
         }
 
         #input input {
             flex: 1;
-            padding: 10px;
+            padding: 10px 16px;
             border: 1px solid #ccc;
             border-radius: 20px;
             font-size: 1em;
-            transition: all 0.2s ease-in-out;
+            transition: border 0.2s;
         }
 
         #input input:focus {
@@ -192,7 +169,7 @@
         }
 
         #input button {
-            padding: 10px 18px;
+            padding: 10px 20px;
             margin-left: 10px;
             border: none;
             border-radius: 20px;
@@ -222,7 +199,6 @@
 <body>
 <div id="main">
     <div id="users">
-        <!-- Example user -->
         <div class="user active">
             <div class="user-pic">A</div>
             <div class="user-info">
@@ -263,7 +239,6 @@
         </div>
     </div>
 </div>
-
 <script src="/js/chat.js"></script>
 </body>
 </html>
