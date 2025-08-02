@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await resp.json();
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshTooken || data.refreshToken);
-        window.location.href = '/chat';
+        window.location.href = '/dashboard';
       } catch (err) {
         document.getElementById('error').textContent = 'Login failed';
       }

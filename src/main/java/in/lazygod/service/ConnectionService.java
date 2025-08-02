@@ -63,7 +63,7 @@ public class ConnectionService {
             throw new in.lazygod.exception.ForbiddenException("not.authorized");
         }
 
-        connection.setStatus(ConnectionStatus.REJECTED);
+        connection.setStatus(ConnectionStatus.ACCEPTED);
         connection.setUpdatedOn(LocalDateTime.now());
         connectionRepository.save(connection);
 
