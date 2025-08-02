@@ -204,6 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('sendBtn')) {
     api('/users/me').then(u => { myUsername = u.username; }).catch(() => {});
     document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageText').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // Prevent newline
+        sendMessage();
+      }
+    });
     loadUsers();
     connectWs();
   }
