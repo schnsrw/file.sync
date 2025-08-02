@@ -1,27 +1,23 @@
 # 📂 File Manager API
 
-A Spring Boot-based file management server with full S3 capabilities, JWT authentication, role-based access control (`@PreAuthorize`), refresh token support, and Dockerized deployment.
+A Spring Boot–based file management server featuring S3‑compatible storage,
+JWT authentication and role‑based access control. The project exposes REST and
+WebSocket endpoints and includes SDKs for Java and JavaScript clients.
 
 ---
 
 ## 🚀 Features
 
-- 🔐 JWT Authentication (Access + Refresh tokens)
-- 👤 User Registration & Login
-- 🧑‍⚖️ Role-based Access Control (`@PreAuthorize`)
-- 💾 S3-compatible file storage (e.g., MinIO, AWS S3)
-- 📁 Upload & download files
-- 📂 Folder creation and listing
-- 🗂️ Storage management endpoints
-- 👥 Connection requests and WebSocket chat
-- 📨 Recent messages history with timestamp filtering
-- 👥 Roster management cached with LRU policy
-- 🔐 Grant/revoke rights on files and folders
-- 📝 API logging with Swagger documentation
-- 🧩 Java and JavaScript SDKs for client integrations
-- 🐳 Dockerized application
-- 🔄 Token refresh endpoint
-- 📜 Swagger UI docs (`/swagger-ui.html`)
+- JWT authentication with access and refresh tokens
+- User registration, login and profile management
+- Role-based access control and fine‑grained rights for files and folders
+- File upload/download and favourite marking
+- Folder creation and content listing
+- Connection requests and WebSocket chat with message history
+- Storage management with S3/MinIO support and credential testing
+- Activity logs for files and folders
+- Java and JavaScript SDKs
+- Dockerized deployment with Swagger UI
 
 ---
 
@@ -31,8 +27,8 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 - **Spring Security**, **JJWT**
 - **Amazon S3 / MinIO**
 - **Docker**, **OpenAPI / Swagger**
-- Optional: **MongoDB**, **Redis**, **Collabora Online**, **GraphQL**
-- 🗄️ Redis-backed caches for user data, rosters, files, folders and rights
+- Optional: **MongoDB**, **Redis**, **Collabora Online**
+- Redis-backed caches for user data, rosters, files, folders and rights
 
 ---
 
@@ -47,10 +43,7 @@ A Spring Boot-based file management server with full S3 capabilities, JWT authen
 ### 🛠️ Build & Run
 
 ```bash
-# Build project
 mvn clean install
-
-# Run app with the in-memory H2 database
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
@@ -76,39 +69,6 @@ the supporting databases using:
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
-## 🎯 Project Goals
-
-- **Application Storage**: users can store files in the application's default storage
-  backend.
-- **Workspace Management**: any user can create a workspace. The creator becomes
-  the workspace admin and can manage storages and user permissions within it.
-- **User Management**: workspace admins can add or remove members and adjust
-  their rights on storage locations.
-- **Pluggable Storage Types**: beyond the default storage, workspaces can attach
-  custom storage locations. Supported types include local folders, FTP/SCP remote
-  servers, S3-compatible buckets (via signed URLs), and generic blob storage.
-- **Groups Inside Workspaces**: admins can organize members into groups to grant
-  or restrict access to folders.
-- **Chat**: users can chat one‑on‑one with others in their roster and share files;
-  workspace chats enable group conversations via WebSocket.
-  Messages are stored in MongoDB and the sender is notified once a message is delivered.
-
-## 🔮 Future Plans
-
-- Collaborative editing through Collabora Online integration.
-- File versioning with configurable retention per storage.
-
-## ✅ Completed Milestones
-
-- Core authentication with JWT
-- User registration and profile endpoints
-- File upload and download with S3 support
-- Folder management and listing
-- Rights management for files and folders
-- Connection requests and WebSocket chat
-- Storage configuration APIs
-- Java and JavaScript SDKs skeleton for clients
-
 ## 📖 Storage Setup
 
 You can attach AWS S3 buckets as additional storage locations.
@@ -125,9 +85,10 @@ Credentials are encrypted before being stored in the database. When using S3 the
 application generates presigned URLs so files are uploaded and downloaded
 directly from S3 without passing through the server.
 
-## 🚧 In Pipeline
+## 🛣 Roadmap
 
-- File and folder deletion endpoints
-- Folder tree and file listing APIs
-- Admin user management endpoint
-- Audit log querying
+- File and folder deletion
+- Recursive folder tree APIs
+- Admin user management
+- Collaborative editing via Collabora Online
+- File versioning with retention policies
