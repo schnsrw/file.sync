@@ -25,6 +25,11 @@ public class UserController {
         return ResponseEntity.ok(SecurityContextHolderUtil.getCurrentUser());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> search(@RequestParam("q") String q) {
+        return ResponseEntity.ok(userService.searchUsers(q));
+    }
+
     @GetMapping("/connected")
     public ResponseEntity<List<User>> request(
             @RequestParam(required = false, defaultValue = "0") Integer page,

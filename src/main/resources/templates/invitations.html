@@ -42,26 +42,83 @@
 <body>
 <div id="main">
     <h2>Send Invitation</h2>
-    <form>
-        <input type="text" placeholder="Username or email" />
+    <form id="invitationForm">
+        <input id="searchInput" type="text" placeholder="Username" list="userSuggestions" />
+        <datalist id="userSuggestions"></datalist>
         <button type="submit">Send</button>
     </form>
 
     <h2>Incoming Invitations</h2>
-    <ul>
-        <li>John Doe
-            <span class="actions">
-                <button>Accept</button>
-                <button>Reject</button>
-            </span>
-        </li>
-        <li>Jane Smith
-            <span class="actions">
-                <button>Accept</button>
-                <button>Reject</button>
-            </span>
-        </li>
-    </ul>
+    <ul id="invitationList"></ul>
 </div>
+<script>
+    function authHeaders() {
+        const token = localStorage.getItem('accessToken');
+        return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    }
+
+    function loadInvitations() {
+        fetch('/connections/pending', { headers: authHeaders() })
+            .then(resp => resp.json())
+            .then(data => {
+                const list = document.getElementById('invitationList');
+                list.innerHTML = '';
+                data.forEach(inv => {
+                    const li = document.createElement('li');
+                    li.textContent = inv.fullName || inv.username;
+                    const actions = document.createElement('span');
+                    actions.className = 'actions';
+                    const acceptBtn = document.createElement('button');
+                    acceptBtn.textContent = 'Accept';
+                    acceptBtn.onclick = () => respond(inv.connectionId, 'accept');
+                    const rejectBtn = document.createElement('button');
+                    rejectBtn.textContent = 'Reject';
+                    rejectBtn.onclick = () => respond(inv.connectionId, 'reject');
+                    actions.appendChild(acceptBtn);
+                    actions.appendChild(rejectBtn);
+                    li.appendChild(actions);
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function respond(id, action) {
+        fetch(`/connections/${id}/${action}`, { method: 'POST', headers: authHeaders() })
+            .then(() => loadInvitations());
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadInvitations();
+        const input = document.getElementById('searchInput');
+        const suggestions = document.getElementById('userSuggestions');
+
+        input.addEventListener('input', () => {
+            const q = input.value.trim();
+            if (!q) { suggestions.innerHTML = ''; return; }
+            fetch(`/users/search?q=${encodeURIComponent(q)}`, { headers: authHeaders() })
+                .then(r => r.json())
+                .then(users => {
+                    suggestions.innerHTML = '';
+                    users.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.username;
+                        suggestions.appendChild(opt);
+                    });
+                });
+        });
+
+        document.getElementById('invitationForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const username = input.value.trim();
+            if (!username) return;
+            fetch(`/connections/request/${encodeURIComponent(username)}`, { method: 'POST', headers: authHeaders() })
+                .then(() => {
+                    input.value = '';
+                    suggestions.innerHTML = '';
+                    loadInvitations();
+                });
+        });
+    });
+</script>
 </body>
 </html>
