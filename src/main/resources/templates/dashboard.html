@@ -71,9 +71,11 @@
 <div id="sidebar">
     <a href="#" class="active" onclick="loadPage('/chat', this); return false;">💬 Chat</a>
     <a href="#" onclick="loadPage('/invitations', this); return false;">📨 Invitations</a>
+    <a href="#" onclick="logout(); return false;">🚪 Logout</a>
 </div>
 <div id="main">
     <iframe id="contentFrame" src="/chat"></iframe>
 </div>
+<script src="/js/auth.js"></script>
 </body>
 </html>
