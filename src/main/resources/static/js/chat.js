@@ -55,19 +55,11 @@ function connectWs() {
       if (pkt.from === currentChat) {
        const userItem = document.querySelector(`#users .user[data-username="${pkt.from}"]`);
              if (userItem) {
-               const statusEl = userItem.querySelector('.status-text');
                const dot = userItem.querySelector('.status-dot');
                if (pkt.payload.status === 'ONLINE') {
-                 statusEl.textContent = 'online';
                  dot.classList.add('online');
                  dot.classList.remove('offline');
                } else {
-                 if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
-                   const d = new Date(pkt.payload['last-seen']);
-                   statusEl.textContent = `last seen ${d.toLocaleString()}`;
-                 } else {
-                   statusEl.textContent = 'offline';
-                 }
                  dot.classList.add('offline');
                  dot.classList.remove('online');
                }
@@ -119,10 +111,10 @@ const enriched = await Promise.all(users.map(async u => {
               <div class="user-pic">${u.username.charAt(0).toUpperCase()}</div>
         <div class="user-info">
           <div class="name">${u.username}</div>
-          <div class="status-text">${statusText}</div>
-          <div class="last-msg">${u.lastMsg || ''}</div>
+            <div class="last-msg">${u.lastMsg || ''}</div>
         </div>
-        <div class="status-dot ${isOnline ? 'online' : 'offline'}"></div>
+        <div class="status-dot offline"></div>
+
       `;
 
       btn.onclick = async () => {
@@ -233,6 +225,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('sendBtn')) {
     api('/users/me').then(u => { myUsername = u.username; }).catch(() => {});
     document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageText').addEventListener('keydown', e => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Prevent newline
+            sendMessage();
+          }
+        });
     connectWs();
     loadUsers();
   }
