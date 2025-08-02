@@ -1,0 +1,35 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  display: flex;
+  background-color: #f0f2f5;
+}
+
+#sidebar {
+  width: 200px;
+  background-color: #343a40;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar a {
+  padding: 15px;
+  color: white;
+  text-decoration: none;
+}
+
+#sidebar a.active,
+#sidebar a:hover {
+  background-color: #495057;
+}
+
+#main {
+  flex: 1;
+}

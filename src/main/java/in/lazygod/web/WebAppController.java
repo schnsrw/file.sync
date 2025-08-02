@@ -15,4 +15,9 @@ public class WebAppController {
     public String chatPage() {
         return "chat";
     }
+
+    @GetMapping("/invitations")
+    public String invitationPage() {
+        return "invitations";
+    }
 }

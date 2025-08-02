@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Invitations</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <style>
+        #main {
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        form input {
+            padding: 8px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        form button {
+            padding: 8px 12px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .actions button {
+            margin-left: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="sidebar">
+    <a href="/chat">Chat</a>
+    <a href="/invitations" class="active">Invitations</a>
+</div>
+<div id="main">
+    <h2>Send Invitation</h2>
+    <form>
+        <input type="text" placeholder="Username or email" />
+        <button type="submit">Send</button>
+    </form>
+
+    <h2>Incoming Invitations</h2>
+    <ul>
+        <li>John Doe
+            <span class="actions">
+                <button>Accept</button>
+                <button>Reject</button>
+            </span>
+        </li>
+        <li>Jane Smith
+            <span class="actions">
+                <button>Accept</button>
+                <button>Reject</button>
+            </span>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

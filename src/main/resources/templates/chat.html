@@ -3,18 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <title>Chat</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
+        #main {
             display: flex;
-            background-color: #f0f2f5;
         }
 
         #users {
@@ -228,45 +220,51 @@
     </style>
 </head>
 <body>
-<div id="users">
-    <!-- Example user -->
-    <div class="user active">
-        <div class="user-pic">A</div>
-        <div class="user-info">
-            <div class="name">Alice</div>
-            <div class="status-text">online</div>
-            <div class="last-msg">Hey there</div>
-        </div>
-        <div class="status-dot online"></div>
-    </div>
-    <div class="user">
-        <div class="user-pic">B</div>
-        <div class="user-info">
-            <div class="name">Bob</div>
-            <div class="status-text">last seen 1h ago</div>
-            <div class="last-msg">See you!</div>
-        </div>
-        <div class="status-dot offline"></div>
-    </div>
+<div id="sidebar">
+    <a href="/chat" class="active">Chat</a>
+    <a href="/invitations">Invitations</a>
 </div>
+<div id="main">
+    <div id="users">
+        <!-- Example user -->
+        <div class="user active">
+            <div class="user-pic">A</div>
+            <div class="user-info">
+                <div class="name">Alice</div>
+                <div class="status-text">online</div>
+                <div class="last-msg">Hey there</div>
+            </div>
+            <div class="status-dot online"></div>
+        </div>
+        <div class="user">
+            <div class="user-pic">B</div>
+            <div class="user-info">
+                <div class="name">Bob</div>
+                <div class="status-text">last seen 1h ago</div>
+                <div class="last-msg">See you!</div>
+            </div>
+            <div class="status-dot offline"></div>
+        </div>
+    </div>
 
-<div id="chat">
-    <div id="chat-header">
-        <span id="chatWith">Chat with Alice</span>
-    </div>
-    <div id="messages">
-        <div class="msg-wrapper">
-            <div class="msg-profile">A</div>
-            <div class="msg">Hi there! How are you?</div>
+    <div id="chat">
+        <div id="chat-header">
+            <span id="chatWith">Chat with Alice</span>
         </div>
-        <div class="msg-wrapper me">
-            <div class="msg">I'm good, thanks!</div>
-            <div class="msg-profile">M</div>
+        <div id="messages">
+            <div class="msg-wrapper">
+                <div class="msg-profile">A</div>
+                <div class="msg">Hi there! How are you?</div>
+            </div>
+            <div class="msg-wrapper me">
+                <div class="msg">I'm good, thanks!</div>
+                <div class="msg-profile">M</div>
+            </div>
         </div>
-    </div>
-    <div id="input">
-        <input id="messageText" type="text" placeholder="Type a message..." />
-        <button id="sendBtn">Send</button>
+        <div id="input">
+            <input id="messageText" type="text" placeholder="Type a message..." />
+            <button id="sendBtn">Send</button>
+        </div>
     </div>
 </div>
 
