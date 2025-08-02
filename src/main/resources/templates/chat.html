@@ -83,6 +83,17 @@
             margin-right: 10px;
         }
 
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info .status-text,
+        .user-info .last-msg {
+            font-size: 0.75em;
+            color: #555;
+        }
+
         .status-dot {
             width: 10px;
             height: 10px;
@@ -221,12 +232,20 @@
     <!-- Example user -->
     <div class="user active">
         <div class="user-pic">A</div>
-        <div>Alice</div>
+        <div class="user-info">
+            <div class="name">Alice</div>
+            <div class="status-text">online</div>
+            <div class="last-msg">Hey there</div>
+        </div>
         <div class="status-dot online"></div>
     </div>
     <div class="user">
         <div class="user-pic">B</div>
-        <div>Bob</div>
+        <div class="user-info">
+            <div class="name">Bob</div>
+            <div class="status-text">last seen 1h ago</div>
+            <div class="last-msg">See you!</div>
+        </div>
         <div class="status-dot offline"></div>
     </div>
 </div>
@@ -241,8 +260,8 @@
             <div class="msg">Hi there! How are you?</div>
         </div>
         <div class="msg-wrapper me">
-            <div class="msg-profile">M</div>
             <div class="msg">I'm good, thanks!</div>
+            <div class="msg-profile">M</div>
         </div>
     </div>
     <div id="input">
