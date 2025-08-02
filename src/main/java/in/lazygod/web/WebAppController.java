@@ -25,4 +25,9 @@ public class WebAppController {
     public String invitationPage() {
         return "invitations";
     }
+
+    @GetMapping("/call")
+    public String callPage() {
+        return "call";
+    }
 }

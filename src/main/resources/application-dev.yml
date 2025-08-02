@@ -55,7 +55,7 @@ encryption:
   secret: 12345678901234567890123456789012
 
 ratelimit:
-  enabled: true
+  enabled: false
   limit: 60
 
 cluster:

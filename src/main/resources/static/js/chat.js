@@ -93,9 +93,30 @@ function connectWs() {
           statusEl.textContent = 'offline';
         }
       }
-    }
+    } else if (pkt.type === 'call') {
+        if (pkt.payload.type === 'offer') {
+
+        console.log('[chat.js] Received call offer from', pkt.from);
+              showIncomingCallModal(pkt.from);
+            } else if (pkt.payload.type === 'hangup') {
+              const modal = document.getElementById('incomingCallModal');
+              if (modal) {
+                modal.style.display = 'none';
+                delete modal.dataset.caller;
+              }
+            }
+      }
+
   };
 }
+
+/*
+callBtn.addEventListener('click', () => {
+  if (currentChat) {
+    window.location.href = `/call?user=${encodeURIComponent(currentChat)}&init=1`;
+  }
+});
+*/
 
 async function loadUsers() {
   try {
@@ -138,6 +159,8 @@ const enriched = await Promise.all(users.map(async u => {
         document.getElementById('messages').innerHTML = '';
         document.getElementById('chatWith').textContent = u.username;
         document.getElementById('userStatus').textContent = '';
+        const callBtn = document.getElementById('callBtn');
+        if (callBtn) callBtn.style.display = 'inline-block';
 
         btn.classList.remove('unread');
 
@@ -157,6 +180,8 @@ const enriched = await Promise.all(users.map(async u => {
     } else {
       document.getElementById('chatWith').textContent = '';
       document.getElementById('userStatus').textContent = '';
+      const callBtn = document.getElementById('callBtn');
+      if (callBtn) callBtn.style.display = 'none';
     }
   } catch (e) {
     console.error(e);
@@ -245,6 +270,11 @@ async function sendMessage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+const modal = document.getElementById('incomingCallModal');
+if (modal) {
+  modal.style.display = 'none'; // Force hide on load
+}
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     const token = localStorage.getItem('accessToken');
@@ -293,5 +323,58 @@ document.addEventListener('DOMContentLoaded', () => {
         msgBox.scrollTop = msgBox.scrollHeight - prevHeight;
       }
     });
+    const callBtn = document.getElementById('callBtn');
+    if (callBtn) {
+      callBtn.addEventListener('click', () => {
+        if (currentChat) {
+          window.location.href = `/call?user=${encodeURIComponent(currentChat)}&init=1`;
+        }
+      });
+    }
   }
 });
+
+
+function showIncomingCallModal(callerUsername) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('incomingCallModal');
+    const callerNameEl = document.getElementById('callerName');
+    const acceptBtn = document.getElementById('acceptCallBtn');
+    const rejectBtn = document.getElementById('rejectCallBtn');
+
+    if (!modal || !callerNameEl || !acceptBtn || !rejectBtn) {
+      console.error('[showIncomingCallModal] Elements missing in DOM');
+      return;
+    }
+
+    console.log(`[showIncomingCallModal] Showing modal for ${callerUsername}`);
+    modal.dataset.caller = callerUsername;
+    callerNameEl.textContent = `Incoming call from ${callerUsername}`;
+    modal.style.display = 'flex';
+
+    acceptBtn.onclick = () => {
+      modal.style.display = 'none';
+      const user = modal.dataset.caller;
+      if (user) {
+        window.location.href = `/call?user=${encodeURIComponent(user)}`;
+      }
+    };
+
+    rejectBtn.onclick = () => {
+      modal.style.display = 'none';
+      const user = modal.dataset.caller;
+      if (user && ws?.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'call',
+          payload: { to: user, type: 'hangup' }
+        }));
+      }
+    };
+  });
+
+  // If DOM is already loaded, trigger immediately
+  if (document.readyState === 'complete') {
+    const event = new Event('DOMContentLoaded');
+    document.dispatchEvent(event);
+  }
+}
