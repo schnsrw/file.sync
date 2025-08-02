@@ -52,30 +52,27 @@ function connectWs() {
       const el = document.getElementById('msg-' + pkt.payload.id);
       if (el) el.querySelector('.status').textContent = pkt.payload.status;
     } else if (pkt.type === 'last-seen') {
+      const userItem = document.querySelector(`#users .user[data-username="${pkt.from}"]`);
+      if (userItem) {
+        const dot = userItem.querySelector('.status-dot');
+        if (pkt.payload.status === 'ONLINE') {
+          dot.classList.add('online');
+          dot.classList.remove('offline');
+        } else {
+          dot.classList.add('offline');
+          dot.classList.remove('online');
+        }
+      }
       if (pkt.from === currentChat) {
-       const userItem = document.querySelector(`#users .user[data-username="${pkt.from}"]`);
-             if (userItem) {
-               const dot = userItem.querySelector('.status-dot');
-               if (pkt.payload.status === 'ONLINE') {
-                 dot.classList.add('online');
-                 dot.classList.remove('offline');
-               } else {
-                 dot.classList.add('offline');
-                 dot.classList.remove('online');
-               }
-             }
-
-             if (pkt.from === currentChat) {
-               const header = document.getElementById('chatWith');
-               if (pkt.payload.status === 'ONLINE') {
-                 header.textContent = `${currentChat} (online)`;
-               } else if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
-                 const d = new Date(pkt.payload['last-seen']);
-                 header.textContent = `${currentChat} (last seen ${d.toLocaleString()})`;
-               } else {
-                 header.textContent = `${currentChat} (offline)`;
-               }
-             }
+        const statusEl = document.getElementById('userStatus');
+        if (pkt.payload.status === 'ONLINE') {
+          statusEl.textContent = 'online';
+        } else if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
+          const d = new Date(pkt.payload['last-seen']);
+          statusEl.textContent = `last seen ${d.toLocaleString()}`;
+        } else {
+          statusEl.textContent = 'offline';
+        }
       }
     }
   };
@@ -120,7 +117,8 @@ const enriched = await Promise.all(users.map(async u => {
       btn.onclick = async () => {
         currentChat = u.username;
         document.getElementById('messages').innerHTML = '';
-        document.getElementById('chatWith').textContent = `Chatting with ${u.username}`;
+        document.getElementById('chatWith').textContent = u.username;
+        document.getElementById('userStatus').textContent = '';
 
         // Set active class
         document.querySelectorAll('#users .user').forEach(el => el.classList.remove('active'));
