@@ -124,7 +124,7 @@ public class ChatService {
         User user = SecurityContextHolderUtil.getCurrentUser();
 
         // todo: check if user is connected
-        connectionRepository.findConnectionFromUserIds(reciptiant.getUsername(), user.getUsername(), ConnectionStatus.ACCEPTED)
+        connectionRepository.findConnectionFromUserIds(reciptiant.getUserId(), user.getUserId(), ConnectionStatus.ACCEPTED)
                 .orElseThrow(()->new RuntimeException("connection.not.found"));
 
         String conversationId = conversationId(reciptiant.getUsername(),user.getUsername());
