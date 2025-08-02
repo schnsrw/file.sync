@@ -1,5 +1,6 @@
 package in.lazygod.controller;
 
+import in.lazygod.dto.ConnectionRequestResponse;
 import in.lazygod.models.Connection;
 import in.lazygod.service.ConnectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,7 +34,7 @@ public class ConnectionController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<Connection>> pending() {
+    public ResponseEntity<List<ConnectionRequestResponse>> pending() {
         return ResponseEntity.ok(connectionService.pendingRequests());
     }
 }

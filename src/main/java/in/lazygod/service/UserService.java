@@ -64,6 +64,15 @@ public class UserService {
         return true;
     }
 
+    public List<User> searchUsers(String query) {
+        User current = SecurityContextHolderUtil.getCurrentUser();
+        return userRepository
+                .findByUsernameContainingIgnoreCase(query, PageRequest.of(0, 5))
+                .stream()
+                .filter(u -> !u.getUserId().equals(current.getUserId()))
+                .toList();
+    }
+
     @CacheEvict(value = "user-details", key = "T(in.lazygod.security.SecurityContextHolderUtil).getCurrentUser().getUsername()")
     public User updateProfile(UserUpdateRequest request) {
         User current = SecurityContextHolderUtil.getCurrentUser();
