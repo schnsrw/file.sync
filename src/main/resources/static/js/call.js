@@ -46,14 +46,15 @@ async function init() {
   document.getElementById('localVideo').srcObject = localStream;
   localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
+  const remoteVideoEl = document.getElementById('remoteVideo');
+
   pc.ontrack = e => {
     if (!remoteStream) {
       remoteStream = new MediaStream();
-      const rv = document.getElementById('remoteVideo');
-      rv.srcObject = remoteStream;
-      rv.play().catch(() => {});
+      remoteVideoEl.srcObject = remoteStream;
     }
     remoteStream.addTrack(e.track);
+    remoteVideoEl.play().catch(() => {});
   };
 
   pc.onicecandidate = e => {
