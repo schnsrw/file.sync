@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <script>
+        function loadPage(page, link) {
+            document.getElementById('contentFrame').src = page;
+            document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+        }
+    </script>
+</head>
+<body>
+<div id="sidebar">
+    <a href="#" class="active" onclick="loadPage('/chat', this); return false;">Chat</a>
+    <a href="#" onclick="loadPage('/invitations', this); return false;">Invitations</a>
+</div>
+<div id="main">
+    <iframe id="contentFrame" src="/chat"></iframe>
+</div>
+</body>
+</html>
