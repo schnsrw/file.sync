@@ -105,14 +105,16 @@ async function init() {
     }
   };
 
-  if (initiate) {
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    ws.send(JSON.stringify({
-      type: 'call',
-      payload: { to: remoteUser, type: 'offer', offer }
-    }));
-  }
+  ws.onopen = async () => {
+    if (initiate) {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      ws.send(JSON.stringify({
+        type: 'call',
+        payload: { to: remoteUser, type: 'offer', offer }
+      }));
+    }
+  };
 
   document.getElementById('hangupBtn').addEventListener('click', () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
