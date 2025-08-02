@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import in.lazygod.websocket.manager.LastSeenManager;
 import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.model.Packet;
+import in.lazygod.websocket.model.PacketType;
 import in.lazygod.websocket.model.Presence;
 import in.lazygod.websocket.model.SessionWrapper;
 
@@ -23,7 +24,7 @@ public class LastSeenHandler implements WsMessageHandler{
 
     @Override
     public String type() {
-        return "last-seen";
+        return PacketType.LAST_SEEN.value();
     }
 
     @Override
