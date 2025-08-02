@@ -2,6 +2,7 @@ let ws = null;
 let pc = null;
 let remoteUser = null;
 let localStream = null;
+let pendingCandidates = [];
 
 function closeCall() {
   if (pc) {
@@ -63,14 +64,27 @@ async function init() {
         type: 'call',
         payload: { to: remoteUser, type: 'answer', answer }
       }));
+      for (const c of pendingCandidates) {
+        try { await pc.addIceCandidate(c); } catch (err) { console.error(err); }
+      }
+      pendingCandidates = [];
     } else if (data.type === 'answer') {
       await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+      for (const c of pendingCandidates) {
+        try { await pc.addIceCandidate(c); } catch (err) { console.error(err); }
+      }
+      pendingCandidates = [];
     } else if (data.type === 'candidate') {
       if (data.candidate) {
-        try {
-          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } catch (err) {
-          console.error(err);
+        const candidate = new RTCIceCandidate(data.candidate);
+        if (pc.remoteDescription) {
+          try {
+            await pc.addIceCandidate(candidate);
+          } catch (err) {
+            console.error(err);
+          }
+        } else {
+          pendingCandidates.push(candidate);
         }
       }
     } else if (data.type === 'hangup') {
