@@ -57,7 +57,16 @@ function connectWs() {
   ws.onmessage = e => {
     const pkt = JSON.parse(e.data);
     if (pkt.type === 'chat') {
-      showMessage(pkt.from, pkt.payload.text, pkt.payload.id, Date.now());
+      if (pkt.from === currentChat) {
+        showMessage(pkt.from, pkt.payload.text, pkt.payload.id, Date.now());
+      } else {
+        const userItem = document.querySelector(`#users .user[data-username="${pkt.from}"]`);
+        if (userItem) {
+          userItem.classList.add('unread');
+          const lastMsgEl = userItem.querySelector('.last-msg');
+          if (lastMsgEl) lastMsgEl.textContent = pkt.payload.text;
+        }
+      }
     } else if (pkt.type === 'receipt') {
       const el = document.getElementById('msg-' + pkt.payload.id);
       if (el) el.querySelector('.status').textContent = pkt.payload.status;
@@ -129,6 +138,8 @@ const enriched = await Promise.all(users.map(async u => {
         document.getElementById('messages').innerHTML = '';
         document.getElementById('chatWith').textContent = u.username;
         document.getElementById('userStatus').textContent = '';
+
+        btn.classList.remove('unread');
 
         // Set active class
         document.querySelectorAll('#users .user').forEach(el => el.classList.remove('active'));
