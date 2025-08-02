@@ -94,15 +94,15 @@ function connectWs() {
         }
       }
     } else if (pkt.type === 'call') {
-      if (pkt.payload.type === 'offer') {
-        const accept = confirm(`Incoming call from ${pkt.from}. Accept?`);
-        if (accept) {
-          window.location.href = `/call?user=${encodeURIComponent(pkt.from)}`;
-        } else {
-          ws.send(JSON.stringify({ type: 'call', payload: { to: pkt.from, type: 'hangup' } }));
-        }
-      }
-    }
+             if (pkt.payload.type === 'offer') {
+               const modal = document.getElementById('incomingCallModal');
+               const callerNameEl = document.getElementById('callerName');
+               modal.style.display = 'flex';
+               modal.dataset.caller = pkt.from;
+               callerNameEl.textContent = `Incoming call from ${pkt.from}`;
+             }
+           }
+
   };
 }
 
@@ -258,6 +258,11 @@ async function sendMessage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+const modal = document.getElementById('incomingCallModal');
+if (modal) {
+  modal.style.display = 'none'; // Force hide on load
+}
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     const token = localStorage.getItem('accessToken');
@@ -316,3 +321,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+function showIncomingCallModal(callerUsername) {
+  // Defer execution until DOM is fully loaded
+  if (document.readyState !== 'complete') {
+    window.addEventListener('DOMContentLoaded', () => showIncomingCallModal(callerUsername));
+    return;
+  }
+
+  const modal = document.getElementById('incomingCallModal');
+  const callerNameEl = document.getElementById('callerName');
+  const acceptBtn = document.getElementById('acceptCallBtn');
+  const rejectBtn = document.getElementById('rejectCallBtn');
+
+  if (!modal || !acceptBtn || !rejectBtn || !callerNameEl) {
+    console.error('Call modal elements missing in DOM');
+    return;
+  }
+
+  callerNameEl.textContent = `Incoming call from ${callerUsername}`;
+  modal.style.display = 'flex';
+
+  acceptBtn.onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = `/call?user=${encodeURIComponent(callerUsername)}`;
+  };
+
+  rejectBtn.onclick = () => {
+    modal.style.display = 'none';
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: 'call',
+        payload: { to: callerUsername, type: 'hangup' }
+      }));
+    }
+  };
+}
+
