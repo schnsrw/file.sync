@@ -60,3 +60,7 @@ ratelimit:
 
 cluster:
   enabled: false
+
+etherpad:
+  api-url: http://localhost:9001/api/1
+  api-key: apikey
