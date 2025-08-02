@@ -64,15 +64,38 @@ function connectWs() {
 async function loadUsers() {
   try {
     const users = await api('/users/connected?page=0&size=50');
+
+    const enriched = await Promise.all(users.map(async u => {
+      let lastMsg = '';
+      let lastTime = 0;
+      try {
+        const msgs = await api(`/chat/${u.username}?timestamp=${Date.now()}&size=1`);
+        if (msgs && msgs.length > 0) {
+          lastMsg = msgs[0].content;
+          lastTime = new Date(msgs[0].timestamp).getTime();
+        }
+      } catch (e) {}
+      return { ...u, lastMsg, lastTime };
+    }));
+
+    enriched.sort((a, b) => b.lastTime - a.lastTime);
+
     const list = document.getElementById('users');
     list.innerHTML = '';
-    users.forEach(u => {
+
+    enriched.forEach(u => {
+      const isOnline = u.active || u.online;
+      const statusText = isOnline ? 'online' : (u.lastSeen ? `last seen ${new Date(u.lastSeen).toLocaleString()}` : 'offline');
       const btn = document.createElement('div');
       btn.className = 'user';
       btn.innerHTML = `
         <div class="user-pic">${u.username.charAt(0).toUpperCase()}</div>
-        <div>${u.username}</div>
-        <div class="status-dot ${u.online ? 'online' : 'offline'}"></div>
+        <div class="user-info">
+          <div class="name">${u.username}</div>
+          <div class="status-text">${statusText}</div>
+          <div class="last-msg">${u.lastMsg || ''}</div>
+        </div>
+        <div class="status-dot ${isOnline ? 'online' : 'offline'}"></div>
       `;
 
       btn.onclick = async () => {
@@ -151,6 +174,12 @@ async function sendMessage() {
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      api('/users/me').then(() => {
+        window.location.href = '/chat';
+      }).catch(() => {});
+    }
     loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       const username = document.getElementById('username').value;
