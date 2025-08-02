@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Drive</title>
+    <style>
+        #main {
+            padding: 20px;
+        }
+        #breadcrumb {
+            margin-bottom: 15px;
+        }
+        #contentList {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li.folder {
+            cursor: pointer;
+        }
+        .meta {
+            font-size: 0.8em;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+        .star {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <div id="breadcrumb"></div>
+    <ul id="contentList"></ul>
+</div>
+<script src="/js/auth.js"></script>
+<script>
+    function authHeaders() {
+        const token = localStorage.getItem('accessToken');
+        return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    }
+
+    const path = [{ id: null, name: 'Root' }];
+
+    function formatTime(ts) {
+        if (!ts) return '';
+        return new Date(ts).toLocaleString();
+    }
+
+    function updateBreadcrumb() {
+        const bc = document.getElementById('breadcrumb');
+        bc.innerHTML = '';
+        path.forEach((p, idx) => {
+            if (idx > 0) bc.append(' / ');
+            const span = document.createElement('span');
+            span.textContent = p.name;
+            span.style.cursor = 'pointer';
+            span.onclick = () => {
+                path.splice(idx + 1);
+                loadCurrentFolder();
+            };
+            bc.appendChild(span);
+        });
+    }
+
+    function toggleFavourite(type, id, btn) {
+        const fav = btn.textContent === '☆';
+        fetch(`/${type}/${id}/favourite?fav=${fav}`, { method: 'POST', headers: authHeaders() })
+            .then(() => btn.textContent = fav ? '★' : '☆');
+    }
+
+    function renderContents(data) {
+        const list = document.getElementById('contentList');
+        list.innerHTML = '';
+        data.folders.forEach(folder => {
+            const li = document.createElement('li');
+            li.className = 'folder';
+            const left = document.createElement('div');
+            left.textContent = folder.displayName;
+            li.appendChild(left);
+            const right = document.createElement('div');
+            right.className = 'meta';
+            right.textContent = `Created: ${formatTime(folder.createdOn)} | Updated: ${formatTime(folder.updatedOn)}`;
+            const favBtn = document.createElement('button');
+            favBtn.className = 'star';
+            favBtn.textContent = '☆';
+            favBtn.onclick = (e) => { e.stopPropagation(); toggleFavourite('folder', folder.folderId, favBtn); };
+            right.appendChild(favBtn);
+            li.appendChild(right);
+            li.onclick = () => { path.push({ id: folder.folderId, name: folder.displayName }); loadCurrentFolder(); };
+            list.appendChild(li);
+        });
+        data.files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'file';
+            const left = document.createElement('div');
+            left.textContent = file.displayName;
+            li.appendChild(left);
+            const right = document.createElement('div');
+            right.className = 'meta';
+            right.textContent = `Created: ${formatTime(file.createdOn)} | Updated: ${formatTime(file.updatedOn)}`;
+            const favBtn = document.createElement('button');
+            favBtn.className = 'star';
+            favBtn.textContent = '☆';
+            favBtn.onclick = (e) => { e.stopPropagation(); toggleFavourite('file', file.fileId, favBtn); };
+            right.appendChild(favBtn);
+            li.appendChild(right);
+            list.appendChild(li);
+        });
+    }
+
+    function loadCurrentFolder() {
+        updateBreadcrumb();
+        const current = path[path.length - 1];
+        let url = '/folder/list';
+        if (current.id) url += `?folderId=${encodeURIComponent(current.id)}`;
+        fetch(url, { headers: authHeaders() })
+            .then(resp => resp.json())
+            .then(data => renderContents(data));
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCurrentFolder);
+</script>
+</body>
+</html>

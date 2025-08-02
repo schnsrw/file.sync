@@ -25,4 +25,9 @@ public class WebAppController {
     public String invitationPage() {
         return "invitations";
     }
+
+    @GetMapping("/drive")
+    public String drivePage() {
+        return "drive";
+    }
 }
