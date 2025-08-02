@@ -109,6 +109,12 @@
             border-bottom: 1px solid #ddd;
             font-size: 1.1rem;
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #chat-header .chat-info {
+            display: flex;
             flex-direction: column;
         }
 
@@ -119,6 +125,19 @@
         #userStatus {
             font-size: 0.85rem;
             font-weight: normal;
+        }
+
+        #callBtn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background-color: #28a745;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #callBtn:hover {
+            background-color: #218838;
         }
 
         #messages {
@@ -232,8 +251,11 @@
 
     <div id="chat">
         <div id="chat-header">
-            <div id="chatWith"></div>
-            <div id="userStatus" class="user-status"></div>
+            <div class="chat-info">
+                <div id="chatWith"></div>
+                <div id="userStatus" class="user-status"></div>
+            </div>
+            <button id="callBtn" style="display:none;">Call</button>
         </div>
         <div id="messages"></div>
         <div id="input">

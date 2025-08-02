@@ -93,6 +93,15 @@ function connectWs() {
           statusEl.textContent = 'offline';
         }
       }
+    } else if (pkt.type === 'call') {
+      if (pkt.payload.type === 'offer') {
+        const accept = confirm(`Incoming call from ${pkt.from}. Accept?`);
+        if (accept) {
+          window.location.href = `/call?user=${encodeURIComponent(pkt.from)}`;
+        } else {
+          ws.send(JSON.stringify({ type: 'call', payload: { to: pkt.from, type: 'hangup' } }));
+        }
+      }
     }
   };
 }
@@ -138,6 +147,8 @@ const enriched = await Promise.all(users.map(async u => {
         document.getElementById('messages').innerHTML = '';
         document.getElementById('chatWith').textContent = u.username;
         document.getElementById('userStatus').textContent = '';
+        const callBtn = document.getElementById('callBtn');
+        if (callBtn) callBtn.style.display = 'inline-block';
 
         btn.classList.remove('unread');
 
@@ -157,6 +168,8 @@ const enriched = await Promise.all(users.map(async u => {
     } else {
       document.getElementById('chatWith').textContent = '';
       document.getElementById('userStatus').textContent = '';
+      const callBtn = document.getElementById('callBtn');
+      if (callBtn) callBtn.style.display = 'none';
     }
   } catch (e) {
     console.error(e);
@@ -293,5 +306,13 @@ document.addEventListener('DOMContentLoaded', () => {
         msgBox.scrollTop = msgBox.scrollHeight - prevHeight;
       }
     });
+    const callBtn = document.getElementById('callBtn');
+    if (callBtn) {
+      callBtn.addEventListener('click', () => {
+        if (currentChat) {
+          window.location.href = `/call?user=${encodeURIComponent(currentChat)}&init=1`;
+        }
+      });
+    }
   }
 });
