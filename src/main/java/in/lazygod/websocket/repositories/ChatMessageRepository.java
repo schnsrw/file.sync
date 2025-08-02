@@ -10,5 +10,8 @@ import java.util.List;
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
     List<ChatMessage> findByToAndDeliveredFalse(String to);
 
-    List<ChatMessage> findByConvsationIdAndBeforeTimestamp(String conversationId, Instant instant, PageRequest timestamp);
+    List<ChatMessage> findByConversationIdAndTimestampBeforeOrderByTimestampDesc(
+            String conversationId,
+            Instant before,
+            PageRequest pageable);
 }
