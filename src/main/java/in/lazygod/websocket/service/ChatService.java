@@ -2,13 +2,19 @@ package in.lazygod.websocket.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import in.lazygod.enums.ConnectionStatus;
+import in.lazygod.models.User;
+import in.lazygod.repositories.ConnectionRepository;
+import in.lazygod.repositories.UserRepository;
+import in.lazygod.security.SecurityContextHolderUtil;
 import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.model.ChatMessage;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.repositories.ChatMessageRepository;
-import in.lazygod.websocket.service.RecentMessageService;
 import in.lazygod.cluster.ClusterService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -20,7 +26,9 @@ import java.util.List;
 public class ChatService {
     private final ChatMessageRepository repository;
     private final RecentMessageService recentService;
+    private final UserRepository userRepository;
     private final ClusterService clusterService;
+    private final ConnectionRepository connectionRepository;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public void sendMessage(String from, String to, String text) {
@@ -108,5 +116,21 @@ public class ChatService {
         String[] arr = {a, b};
         Arrays.sort(arr);
         return arr[0] + ":" + arr[1];
+    }
+
+    public List<ChatMessage> fetchChats(String username, Long timestamp, Integer size) {
+        User reciptiant = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("user.not.found"));
+
+        User user = SecurityContextHolderUtil.getCurrentUser();
+
+        // todo: check if user is connected
+        connectionRepository.findConnectionFromUserIds(reciptiant.getUsername(), user.getUsername(), ConnectionStatus.ACCEPTED)
+                .orElseThrow(()->new RuntimeException("connection.not.found"));
+
+        String conversationId = conversationId(reciptiant.getUsername(),user.getUsername());
+
+        return repository.findByConvsationIdAndBeforeTimestamp(conversationId,Instant.ofEpochMilli(timestamp),
+                PageRequest.of(0,size, Sort.by(Sort.Direction.DESC,"timestamp")));
     }
 }

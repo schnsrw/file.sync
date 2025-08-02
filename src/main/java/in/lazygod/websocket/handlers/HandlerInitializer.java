@@ -6,6 +6,7 @@ public class HandlerInitializer {
         FeatureHandler.register();
         PingPongHandler.register();
         NotificationHandler.register();
+        LastSeenHandler.register();
         // add more as you create them
     }
 }

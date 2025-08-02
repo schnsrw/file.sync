@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.lazygod.websocket.handlers.HandlerInitializer;
 import in.lazygod.websocket.handlers.HandlerRegistry;
 import in.lazygod.websocket.handlers.WsMessageHandler;
+import in.lazygod.websocket.manager.LastSeenManager;
 import in.lazygod.websocket.manager.UserSessionManager;
 import in.lazygod.websocket.manager.RosterManager;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.SessionWrapper;
 import in.lazygod.websocket.service.ChatService;
 import in.lazygod.cluster.ClusterService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -55,6 +55,7 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
             chatService.deliverPending(wrapper.getUserWrapper().getUsername());
             rosterManager.sessionJoined(wrapper.getUserWrapper().getUsername());
             clusterService.registerUser(wrapper.getUserWrapper().getUsername());
+            LastSeenManager.getInstance().setOnline(wrapper.getUserWrapper().getUsername());
         }
     }
 
@@ -93,5 +94,6 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
             clusterService.removeUser(wrapper.getUserWrapper().getUsername());
         }
         UserSessionManager.getInstance().close(session);
+
     }
 }
