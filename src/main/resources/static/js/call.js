@@ -2,6 +2,7 @@ let ws = null;
 let pc = null;
 let remoteUser = null;
 let localStream = null;
+let remoteStream = null;
 let pendingCandidates = [];
 
 function closeCall() {
@@ -12,6 +13,10 @@ function closeCall() {
   if (localStream) {
     localStream.getTracks().forEach(t => t.stop());
     localStream = null;
+  }
+  if (remoteStream) {
+    remoteStream.getTracks().forEach(t => t.stop());
+    remoteStream = null;
   }
   if (ws) {
     ws.close();
@@ -33,14 +38,22 @@ async function init() {
   const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
   ws = new WebSocket(`${protocol}://${location.host}/ws?token=${encodeURIComponent(token)}`);
 
-  pc = new RTCPeerConnection();
+  pc = new RTCPeerConnection({
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+  });
 
   localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   document.getElementById('localVideo').srcObject = localStream;
   localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
   pc.ontrack = e => {
-    document.getElementById('remoteVideo').srcObject = e.streams[0];
+    if (!remoteStream) {
+      remoteStream = new MediaStream();
+      const rv = document.getElementById('remoteVideo');
+      rv.srcObject = remoteStream;
+      rv.play().catch(() => {});
+    }
+    remoteStream.addTrack(e.track);
   };
 
   pc.onicecandidate = e => {
