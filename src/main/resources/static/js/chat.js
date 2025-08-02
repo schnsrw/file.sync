@@ -24,12 +24,20 @@ async function api(path, method = 'GET', body) {
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (body) opts.body = JSON.stringify(body);
   let resp = await fetch(baseUrl + path, opts);
-  if (resp.status === 401 && await refreshTokens()) {
-    token = localStorage.getItem('accessToken');
-    opts.headers['Authorization'] = 'Bearer ' + token;
-    resp = await fetch(baseUrl + path, opts);
+  if (resp.status === 401) {
+    if (await refreshTokens()) {
+      token = localStorage.getItem('accessToken');
+      opts.headers['Authorization'] = 'Bearer ' + token;
+      resp = await fetch(baseUrl + path, opts);
+    } else {
+      logout();
+      throw new Error('Unauthorized');
+    }
   }
-  if (!resp.ok) throw new Error('Request failed');
+  if (!resp.ok) {
+    if (resp.status === 401) logout();
+    throw new Error('Request failed');
+  }
   return resp.status === 204 ? null : resp.json();
 }
 
