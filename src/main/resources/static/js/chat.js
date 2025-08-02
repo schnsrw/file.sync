@@ -2,6 +2,8 @@ const baseUrl = '';
 let ws = null;
 let currentChat = null;
 let myUsername = null;
+let oldestTimestamp = null;
+let loadingHistory = false;
 
 async function refreshTokens() {
   const refreshToken = localStorage.getItem('refreshToken');
@@ -55,7 +57,7 @@ function connectWs() {
   ws.onmessage = e => {
     const pkt = JSON.parse(e.data);
     if (pkt.type === 'chat') {
-      showMessage(pkt.from, pkt.payload.text);
+      showMessage(pkt.from, pkt.payload.text, pkt.payload.id, Date.now());
     } else if (pkt.type === 'receipt') {
       const el = document.getElementById('msg-' + pkt.payload.id);
       if (el) el.querySelector('.status').textContent = pkt.payload.status;
@@ -143,42 +145,68 @@ const enriched = await Promise.all(users.map(async u => {
   }
 }
 
-function showMessage(from, text, id) {
+function showMessage(from, text, id, timestamp = Date.now(), prepend = false) {
   const wrapper = document.createElement('div');
   const isSelf = from === 'me';
 
   wrapper.className = 'msg-wrapper' + (isSelf ? ' me' : '');
 
   const avatarLetter = isSelf ? myUsername?.charAt(0).toUpperCase() : from.charAt(0).toUpperCase();
-    const profileDiv = document.createElement('div');
-    profileDiv.className = 'msg-profile';
-    profileDiv.textContent = avatarLetter;
+  const profileDiv = document.createElement('div');
+  profileDiv.className = 'msg-profile';
+  profileDiv.textContent = avatarLetter;
 
   const msgDiv = document.createElement('div');
   msgDiv.className = 'msg';
   msgDiv.id = id ? 'msg-' + id : '';
-  msgDiv.innerHTML = `<span>${text}</span><div class="status"></div>`;
+  const timeStr = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  msgDiv.innerHTML = `<span>${text}</span><div class="meta"><span class="timestamp">${timeStr}</span><span class="status"></span></div>`;
 
-  // Arrange elements: avatar on right for self, left for others
   wrapper.appendChild(profileDiv);
-    wrapper.appendChild(msgDiv); // Left-side icon for others
+  wrapper.appendChild(msgDiv);
 
-  document.getElementById('messages').appendChild(wrapper);
-  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+  const messagesEl = document.getElementById('messages');
+  if (prepend) {
+    messagesEl.insertBefore(wrapper, messagesEl.firstChild);
+  } else {
+    messagesEl.appendChild(wrapper);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
 }
-
-
 
 async function loadHistory(user) {
   try {
-    const msgs = await api(`/chat/${user}?timestamp=${Date.now()}&size=50`);
+    oldestTimestamp = Date.now();
+    const msgs = await api(`/chat/${user}?timestamp=${oldestTimestamp}&size=50`);
     if (!msgs) return;
     msgs.reverse().forEach(m => {
       const from = m.from === myUsername ? 'me' : m.from;
-      showMessage(from, m.content, m.id);
+      showMessage(from, m.content, m.id, m.timestamp);
     });
+    if (msgs.length > 0) {
+      oldestTimestamp = msgs[0].timestamp;
+    }
   } catch (e) {
     console.error(e);
+  }
+}
+
+async function loadMoreHistory() {
+  if (loadingHistory || !currentChat || !oldestTimestamp) return;
+  loadingHistory = true;
+  try {
+    const msgs = await api(`/chat/${currentChat}?timestamp=${oldestTimestamp}&size=50`);
+    if (msgs && msgs.length > 0) {
+      msgs.reverse().forEach(m => {
+        const from = m.from === myUsername ? 'me' : m.from;
+        showMessage(from, m.content, m.id, m.timestamp, true);
+      });
+      oldestTimestamp = msgs[0].timestamp;
+    }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loadingHistory = false;
   }
 }
 
@@ -195,7 +223,7 @@ async function sendMessage() {
   const payload = { type: 'chat', payload: { to: currentChat, text } };
   ws.send(JSON.stringify(payload));
   const id = Date.now().toString();
-  showMessage('me', text, id);
+  showMessage('me', text, id, Date.now());
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -239,5 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     connectWs();
     loadUsers();
+    const msgBox = document.getElementById('messages');
+    msgBox.addEventListener('scroll', async () => {
+      if (msgBox.scrollTop === 0) {
+        const prevHeight = msgBox.scrollHeight;
+        await loadMoreHistory();
+        msgBox.scrollTop = msgBox.scrollHeight - prevHeight;
+      }
+    });
   }
 });
