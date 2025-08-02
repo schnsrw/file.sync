@@ -44,6 +44,8 @@ public class User {
     @JsonIgnore
     private LocalDateTime updatedOn;
 
+    private LocalDateTime lastSeen;
+
     @JsonIgnore
     @Column(nullable = false)
     private String password; // hashed

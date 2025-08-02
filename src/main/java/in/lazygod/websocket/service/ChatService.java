@@ -14,7 +14,6 @@ import in.lazygod.websocket.repositories.ChatMessageRepository;
 import in.lazygod.cluster.ClusterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -130,7 +129,9 @@ public class ChatService {
 
         String conversationId = conversationId(reciptiant.getUsername(),user.getUsername());
 
-        return repository.findByConvsationIdAndBeforeTimestamp(conversationId,Instant.ofEpochMilli(timestamp),
-                PageRequest.of(0,size, Sort.by(Sort.Direction.DESC,"timestamp")));
+        return repository.findByConversationIdAndTimestampBeforeOrderByTimestampDesc(
+                conversationId,
+                Instant.ofEpochMilli(timestamp),
+                PageRequest.of(0, size));
     }
 }

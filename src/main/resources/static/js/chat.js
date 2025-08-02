@@ -1,6 +1,7 @@
 const baseUrl = '';
 let ws = null;
 let currentChat = null;
+let myUsername = null;
 
 async function refreshTokens() {
   const refreshToken = localStorage.getItem('refreshToken');
@@ -44,6 +45,18 @@ function connectWs() {
     } else if (pkt.type === 'receipt') {
       const el = document.getElementById('msg-' + pkt.payload.id);
       if (el) el.querySelector('.status').textContent = pkt.payload.status;
+    } else if (pkt.type === 'last-seen') {
+      if (pkt.from === currentChat) {
+        const header = document.getElementById('chatWith');
+        if (pkt.payload.status === 'ONLINE') {
+          header.textContent = `${currentChat} (online)`;
+        } else if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
+          const d = new Date(pkt.payload['last-seen']);
+          header.textContent = `${currentChat} (last seen ${d.toLocaleString()})`;
+        } else {
+          header.textContent = `${currentChat} (offline)`;
+        }
+      }
     }
   };
 }
@@ -57,14 +70,17 @@ async function loadUsers() {
       const btn = document.createElement('div');
       btn.className = 'user';
       btn.textContent = u.username;
-      btn.onclick = () => {
+      btn.onclick = async () => {
         currentChat = u.username;
         document.getElementById('messages').innerHTML = '';
-        chatHeader.textContent = `Chatting with ${u.username}`;
+        document.getElementById('chatWith').textContent = `Chatting with ${u.username}`;
 
         // Set active class
         document.querySelectorAll('#users .user').forEach(el => el.classList.remove('active'));
         btn.classList.add('active');
+
+        await loadHistory(u.username);
+        requestLastSeen(u.username);
       };
       list.appendChild(btn);
     });
@@ -79,6 +95,25 @@ function showMessage(from, text, id) {
   msgDiv.id = id ? 'msg-' + id : '';
   msgDiv.innerHTML = `<span>${text}</span> <span class="status"></span>`;
   document.getElementById('messages').appendChild(msgDiv);
+}
+
+async function loadHistory(user) {
+  try {
+    const msgs = await api(`/chat/${user}?timestamp=${Date.now()}&size=50`);
+    if (!msgs) return;
+    msgs.reverse().forEach(m => {
+      const from = m.from === myUsername ? 'me' : m.from;
+      showMessage(from, m.content, m.id);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function requestLastSeen(user) {
+  if (ws) {
+    ws.send(JSON.stringify({ type: 'last-seen', payload: { to: user } }));
+  }
 }
 
 async function sendMessage() {
@@ -116,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (document.getElementById('sendBtn')) {
+    api('/users/me').then(u => { myUsername = u.username; }).catch(() => {});
     document.getElementById('sendBtn').addEventListener('click', sendMessage);
     loadUsers();
     connectWs();
