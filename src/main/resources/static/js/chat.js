@@ -38,6 +38,12 @@ function connectWs() {
   if (!token) return;
   const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
   ws = new WebSocket(`${protocol}://${location.host}/ws?token=${encodeURIComponent(token)}`);
+  ws.onopen = () => {
+      document.querySelectorAll('#users .user').forEach(el => {
+        const uname = el.dataset.username;
+        if (uname) requestLastSeen(uname);
+      });
+    };
   ws.onmessage = e => {
     const pkt = JSON.parse(e.data);
     if (pkt.type === 'chat') {
@@ -47,15 +53,37 @@ function connectWs() {
       if (el) el.querySelector('.status').textContent = pkt.payload.status;
     } else if (pkt.type === 'last-seen') {
       if (pkt.from === currentChat) {
-        const header = document.getElementById('chatWith');
-        if (pkt.payload.status === 'ONLINE') {
-          header.textContent = `${currentChat} (online)`;
-        } else if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
-          const d = new Date(pkt.payload['last-seen']);
-          header.textContent = `${currentChat} (last seen ${d.toLocaleString()})`;
-        } else {
-          header.textContent = `${currentChat} (offline)`;
-        }
+       const userItem = document.querySelector(`#users .user[data-username="${pkt.from}"]`);
+             if (userItem) {
+               const statusEl = userItem.querySelector('.status-text');
+               const dot = userItem.querySelector('.status-dot');
+               if (pkt.payload.status === 'ONLINE') {
+                 statusEl.textContent = 'online';
+                 dot.classList.add('online');
+                 dot.classList.remove('offline');
+               } else {
+                 if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
+                   const d = new Date(pkt.payload['last-seen']);
+                   statusEl.textContent = `last seen ${d.toLocaleString()}`;
+                 } else {
+                   statusEl.textContent = 'offline';
+                 }
+                 dot.classList.add('offline');
+                 dot.classList.remove('online');
+               }
+             }
+
+             if (pkt.from === currentChat) {
+               const header = document.getElementById('chatWith');
+               if (pkt.payload.status === 'ONLINE') {
+                 header.textContent = `${currentChat} (online)`;
+               } else if (pkt.payload['last-seen'] && pkt.payload['last-seen'] > 0) {
+                 const d = new Date(pkt.payload['last-seen']);
+                 header.textContent = `${currentChat} (last seen ${d.toLocaleString()})`;
+               } else {
+                 header.textContent = `${currentChat} (offline)`;
+               }
+             }
       }
     }
   };
@@ -64,8 +92,7 @@ function connectWs() {
 async function loadUsers() {
   try {
     const users = await api('/users/connected?page=0&size=50');
-
-    const enriched = await Promise.all(users.map(async u => {
+const enriched = await Promise.all(users.map(async u => {
       let lastMsg = '';
       let lastTime = 0;
       try {
@@ -84,12 +111,12 @@ async function loadUsers() {
     list.innerHTML = '';
 
     enriched.forEach(u => {
-      const isOnline = u.active || u.online;
-      const statusText = isOnline ? 'online' : (u.lastSeen ? `last seen ${new Date(u.lastSeen).toLocaleString()}` : 'offline');
-      const btn = document.createElement('div');
-      btn.className = 'user';
-      btn.innerHTML = `
-        <div class="user-pic">${u.username.charAt(0).toUpperCase()}</div>
+      const statusText = u.lastSeen ? `last seen ${new Date(u.lastSeen).toLocaleString()}` : 'offline';
+            const btn = document.createElement('div');
+            btn.className = 'user';
+            btn.dataset.username = u.username;
+            btn.innerHTML = `
+              <div class="user-pic">${u.username.charAt(0).toUpperCase()}</div>
         <div class="user-info">
           <div class="name">${u.username}</div>
           <div class="status-text">${statusText}</div>
@@ -111,6 +138,7 @@ async function loadUsers() {
         requestLastSeen(u.username);
       };
       list.appendChild(btn);
+      requestLastSeen(u.username);
     });
   } catch (e) {
     console.error(e);
@@ -123,8 +151,10 @@ function showMessage(from, text, id) {
 
   wrapper.className = 'msg-wrapper' + (isSelf ? ' me' : '');
 
-  const avatarLetter = isSelf ? myUsername.charAt(0).toUpperCase() : from.charAt(0).toUpperCase();
-  const profileDiv = `<div class="msg-profile">${avatarLetter}</div>`;
+  const avatarLetter = isSelf ? myUsername?.charAt(0).toUpperCase() : from.charAt(0).toUpperCase();
+    const profileDiv = document.createElement('div');
+    profileDiv.className = 'msg-profile';
+    profileDiv.textContent = avatarLetter;
 
   const msgDiv = document.createElement('div');
   msgDiv.className = 'msg';
@@ -132,9 +162,8 @@ function showMessage(from, text, id) {
   msgDiv.innerHTML = `<span>${text}</span><div class="status"></div>`;
 
   // Arrange elements: avatar on right for self, left for others
-  wrapper.innerHTML = isSelf
-    ? msgDiv.outerHTML + profileDiv  // Right-side icon for self
-    : profileDiv + msgDiv.outerHTML; // Left-side icon for others
+  wrapper.appendChild(profileDiv);
+    wrapper.appendChild(msgDiv); // Left-side icon for others
 
   document.getElementById('messages').appendChild(wrapper);
   document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
@@ -156,7 +185,7 @@ async function loadHistory(user) {
 }
 
 function requestLastSeen(user) {
-  if (ws) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: 'last-seen', payload: { to: user } }));
   }
 }
@@ -204,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('sendBtn')) {
     api('/users/me').then(u => { myUsername = u.username; }).catch(() => {});
     document.getElementById('sendBtn').addEventListener('click', sendMessage);
-    loadUsers();
     connectWs();
+    loadUsers();
   }
 });
