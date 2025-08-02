@@ -37,6 +37,14 @@
             transition: background 0.25s ease, padding-left 0.2s;
         }
 
+        #sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar .bottom-link {
+            margin-top: auto;
+        }
         #sidebar a:hover,
         #sidebar a.active {
             background-color: #3e4e61;
@@ -71,7 +79,7 @@
 <div id="sidebar">
     <a href="#" class="active" onclick="loadPage('/chat', this); return false;">💬 Chat</a>
     <a href="#" onclick="loadPage('/invitations', this); return false;">📨 Invitations</a>
-    <a href="#" onclick="logout(); return false;">🚪 Logout</a>
+    <a href="#" class="bottom-link" onclick="logout(); return false;">🚪 Logout</a>
 </div>
 <div id="main">
     <iframe id="contentFrame" src="/chat"></iframe>
