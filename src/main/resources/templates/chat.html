@@ -213,6 +213,19 @@
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 3px;
         }
+        .call-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        .call-button:hover {
+            background-color: #218838;
+        }
         .msg .meta {
             display: flex;
             justify-content: flex-end;
@@ -234,7 +247,7 @@
         <div id="chat-header">
             <div id="chatWith"></div>
             <div id="userStatus" class="user-status"></div>
-            <button id="callBtn" style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;">📞 Call</button>
+            <button id="callBtn" class="call-button" title="Start Call">📞</button>
 
         </div>
         <div id="messages"></div>
