@@ -48,9 +48,12 @@ services:
     image: etherpad/etherpad
     restart: always
     environment:
-      API_KEY: apikey
+      ETHERPAD_API_KEY: apikeyapikeyapikeyapikey
+      AUTHENTICATION_METHOD: "apikey"
     ports:
       - "9001:9001"
+    volumes:
+      - ./APIKEY.txt:/opt/etherpad-lite/APIKEY.txt
 volumes:
   db_data:
   mongo_data:
