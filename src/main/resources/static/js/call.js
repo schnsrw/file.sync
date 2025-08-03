@@ -53,6 +53,33 @@ function createUi() {
   endBtn.style.right = '5px';
   endBtn.addEventListener('click', endCall);
   overlay.appendChild(endBtn);
+  const controls = document.createElement('div');
+  controls.id = 'callControls';
+  controls.style.position = 'absolute';
+  controls.style.bottom = '5px';
+  controls.style.left = '50%';
+  controls.style.transform = 'translateX(-50%)';
+  controls.style.display = 'flex';
+  controls.style.gap = '8px';
+
+  controls.innerHTML = `
+    <button id="toggleMic" title="Toggle Mic">🎙️</button>
+    <button id="toggleCam" title="Toggle Camera">🎥</button>
+    <button id="fullscreenBtn" title="Fullscreen">⛶</button>
+  `;
+
+  [...controls.children].forEach(btn => {
+    btn.style.background = 'rgba(0,0,0,0.6)';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '50%';
+    btn.style.width = '36px';
+    btn.style.height = '36px';
+    btn.style.cursor = 'pointer';
+  });
+
+  overlay.appendChild(controls);
+
 
   document.body.appendChild(overlay);
 
@@ -66,8 +93,15 @@ function createUi() {
   incoming.style.padding = '10px';
   incoming.style.border = '1px solid #333';
   incoming.style.zIndex = '1000';
-  incoming.innerHTML = '<span id="callerName"></span> is calling... ' +
-    '<button id="acceptCall">Accept</button> <button id="declineCall">Decline</button>';
+  incoming.innerHTML = `
+    <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">
+      <span id="callerName"></span> is calling...
+    </div>
+    <div style="display: flex; justify-content: center; gap: 10px;">
+      <button id="acceptCall" style="background: #28a745; color: white; padding: 8px 12px; border-radius: 6px;">✅ Accept</button>
+      <button id="declineCall" style="background: #dc3545; color: white; padding: 8px 12px; border-radius: 6px;">❌ Decline</button>
+    </div>`;
+
   document.body.appendChild(incoming);
   document.getElementById('acceptCall').addEventListener('click', acceptCall);
   document.getElementById('declineCall').addEventListener('click', declineCall);
@@ -96,6 +130,7 @@ async function startCall(user) {
   await pc.setLocalDescription(offer);
   callWs.send(JSON.stringify({type:'call', payload:{to:user, action:'offer', sdp:offer}}));
   document.getElementById('callOverlay').style.display = 'block';
+  showToast(`Calling ${user}...`);
 }
 window.startCall = startCall;
 
@@ -157,5 +192,40 @@ function endCall() {
 
 document.addEventListener('DOMContentLoaded', () => {
   createUi();
+  document.getElementById('toggleMic').onclick = () => {
+    const audioTrack = localStream?.getAudioTracks()[0];
+    if (audioTrack) audioTrack.enabled = !audioTrack.enabled;
+  };
+
+  document.getElementById('toggleCam').onclick = () => {
+    const videoTrack = localStream?.getVideoTracks()[0];
+    if (videoTrack) videoTrack.enabled = !videoTrack.enabled;
+  };
+
+  document.getElementById('fullscreenBtn').onclick = () => {
+    const overlay = document.getElementById('callOverlay');
+    if (!document.fullscreenElement) {
+      overlay.requestFullscreen().catch(console.error);
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   connectCallWs();
 });
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.position = 'fixed';
+  toast.style.bottom = '20px';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  toast.style.background = '#333';
+  toast.style.color = '#fff';
+  toast.style.padding = '10px 20px';
+  toast.style.borderRadius = '8px';
+  toast.style.zIndex = 9999;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}

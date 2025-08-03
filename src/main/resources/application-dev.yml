@@ -60,7 +60,7 @@ encryption:
 
 
 ratelimit:
-  enabled: true
+  enabled: false
   limit: 60
 
 cluster:

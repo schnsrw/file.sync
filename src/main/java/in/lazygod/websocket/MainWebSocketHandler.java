@@ -1,5 +1,6 @@
 package in.lazygod.websocket;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import in.lazygod.util.JsonUtil;
 import in.lazygod.websocket.handlers.HandlerInitializer;
 import in.lazygod.websocket.handlers.HandlerRegistry;
