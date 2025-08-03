@@ -55,3 +55,16 @@ client.sendPing();
 ```
 
 See [docs/sdk-user-guide.md](../../docs/sdk-user-guide.md) for a more detailed guide.
+
+## Web Interface
+
+The API server also renders a simple web UI that can be handy for quick checks.
+When running locally the following pages are available:
+
+- http://localhost:8080/login
+- http://localhost:8080/dashboard
+- http://localhost:8080/drive
+- http://localhost:8080/chat
+- http://localhost:8080/notes
+- http://localhost:8080/invitations
+- http://localhost:8080/admin (admin console)

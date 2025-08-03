@@ -85,6 +85,26 @@ Credentials are encrypted before being stored in the database. When using S3 the
 application generates presigned URLs so files are uploaded and downloaded
 directly from S3 without passing through the server.
 
+## 🌐 Web Interface
+
+Besides the REST API the application ships with a simple browser UI. When the
+server is running locally at `http://localhost:8080` the following pages are
+available:
+
+- `/login` – user sign‑in screen
+- `/dashboard` – landing page after login
+- `/drive` – file and folder browser
+- `/chat` – real‑time chat view
+- `/notes` – personal notes
+- `/invitations` – manage connection requests
+- `/admin/login` – admin sign‑in
+- `/admin` – admin dashboard
+- `/admin/logs` – view application logs
+- `/swagger-ui/index.html` – interactive API docs
+
+These pages surface the functionality implemented so far and are useful for
+quick manual testing.
+
 ## 🛣 Roadmap
 
 - File and folder deletion

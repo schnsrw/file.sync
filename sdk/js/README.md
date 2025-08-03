@@ -36,3 +36,16 @@ client.connectWebSocket();
 
 The client automatically reconnects the WebSocket and refreshes tokens when required.
 
+## Web Interface
+
+The backend API also serves a browser interface that can be used for manual
+testing. When running locally you can open:
+
+- http://localhost:8080/login
+- http://localhost:8080/dashboard
+- http://localhost:8080/drive
+- http://localhost:8080/chat
+- http://localhost:8080/notes
+- http://localhost:8080/invitations
+- http://localhost:8080/admin (admin console)
+
