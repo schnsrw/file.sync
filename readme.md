@@ -18,6 +18,26 @@ WebSocket endpoints and includes SDKs for Java and JavaScript clients.
 - Activity logs for files and folders
 - Java and JavaScript SDKs
 - Dockerized deployment with Swagger UI
+ 
+## ✅ Current Status
+
+- Core authentication, file operations and WebSocket chat features are working.
+- S3/MinIO storage can be attached and validated.
+- Admin utilities for user management, cache cleanup and log viewing.
+
+## 🌐 Web UI
+
+| Page | URL | Description |
+| --- | --- | --- |
+| Login | `/login` | User sign-in form |
+| Dashboard | `/dashboard` | Overview after login |
+| Drive | `/drive` | Browse and manage stored files and folders |
+| Chat | `/chat` | Real-time messaging interface |
+| Invitations | `/invitations` | Handle connection requests |
+| Notes | `/notes` | Simple notes page |
+| Admin Login | `/admin/login` | Entry to the admin area |
+| Admin Dashboard | `/admin` | Monitor users, sessions and metrics |
+| Admin Logs | `/admin/logs` | View recent application log output |
 
 ---
 
