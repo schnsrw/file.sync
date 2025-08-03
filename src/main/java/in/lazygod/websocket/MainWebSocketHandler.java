@@ -1,7 +1,6 @@
 package in.lazygod.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import in.lazygod.util.JsonUtil;
 import in.lazygod.websocket.handlers.HandlerInitializer;
 import in.lazygod.websocket.handlers.HandlerRegistry;
 import in.lazygod.websocket.handlers.WsMessageHandler;
@@ -33,8 +32,8 @@ public class MainWebSocketHandler extends TextWebSocketHandler {
     private final Executor executor;
     private final ChatService chatService;
     private final RosterManager rosterManager;
+    private final com.fasterxml.jackson.databind.ObjectMapper mapper = JsonUtil.MAPPER;
     private final ClusterService clusterService;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public MainWebSocketHandler(HandlerRegistry registry,
                                @Qualifier("wsExecutor") Executor executor,

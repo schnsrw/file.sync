@@ -1,6 +1,6 @@
 package in.lazygod.websocket.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import in.lazygod.util.JsonUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.socket.TextMessage;
@@ -16,7 +16,7 @@ public class SessionWrapper {
     private static Executor executor;
     private final WebSocketSession session;
     private UserWrapper userWrapper;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final com.fasterxml.jackson.databind.ObjectMapper mapper = JsonUtil.MAPPER;
 
     public static void setExecutor(Executor executor) {
         SessionWrapper.executor = executor;

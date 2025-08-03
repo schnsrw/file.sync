@@ -1,7 +1,7 @@
 package in.lazygod.websocket.handlers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import in.lazygod.util.JsonUtil;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import in.lazygod.websocket.model.Packet;
 import in.lazygod.websocket.model.RecentMessage;
@@ -19,7 +19,7 @@ import java.time.Instant;
 public class RecentMessagesHandler implements WsMessageHandler {
     private final RecentMessageService service;
     private final HandlerRegistry registry;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final com.fasterxml.jackson.databind.ObjectMapper mapper = JsonUtil.MAPPER;
 
     @PostConstruct
     public void init() {
