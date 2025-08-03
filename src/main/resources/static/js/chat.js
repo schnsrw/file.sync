@@ -274,22 +274,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (document.getElementById('sendBtn')) {
-    api('/users/me').then(u => { myUsername = u.username; }).catch(() => {});
-    document.getElementById('sendBtn').addEventListener('click', sendMessage);
-    document.getElementById('messageText').addEventListener('keydown', e => {
+    if (document.getElementById('sendBtn')) {
+        api('/users/me').then(u => { myUsername = u.username; }).catch(() => {});
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('messageText').addEventListener('keydown', e => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault(); // Prevent newline
             sendMessage();
           }
         });
-    connectWs();
-    loadUsers();
-    const msgBox = document.getElementById('messages');
-    msgBox.addEventListener('scroll', async () => {
-      if (msgBox.scrollTop === 0) {
-        const prevHeight = msgBox.scrollHeight;
-        await loadMoreHistory();
+        connectWs();
+        loadUsers();
+        const callBtn = document.getElementById('callBtn');
+        if (callBtn) {
+          callBtn.addEventListener('click', () => {
+            if (currentChat && window.parent && window.parent.startCall) {
+              window.parent.startCall(currentChat);
+            }
+          });
+        }
+        const msgBox = document.getElementById('messages');
+        msgBox.addEventListener('scroll', async () => {
+          if (msgBox.scrollTop === 0) {
+            const prevHeight = msgBox.scrollHeight;
+            await loadMoreHistory();
         msgBox.scrollTop = msgBox.scrollHeight - prevHeight;
       }
     });
