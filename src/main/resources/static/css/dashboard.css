@@ -59,8 +59,8 @@
   #callOverlay {
     width: 100vw !important;
     height: 100vh !important;
-    bottom: 0;
-    right: 0;
+    top: 0;
+    left: 0;
     border-radius: 0;
   }
 

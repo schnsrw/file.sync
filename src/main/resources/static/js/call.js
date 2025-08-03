@@ -21,12 +21,17 @@ function createUi() {
   overlay.id = 'callOverlay';
   overlay.style.display = 'none';
   overlay.style.position = 'fixed';
-  overlay.style.bottom = '10px';
-  overlay.style.right = '10px';
+  overlay.style.top = '10px';
+  overlay.style.left = '10px';
   overlay.style.width = '240px';
   overlay.style.height = '180px';
   overlay.style.background = '#000';
   overlay.style.zIndex = '1000';
+  overlay.style.borderRadius = '8px';
+  overlay.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+  overlay.style.resize = 'both';
+  overlay.style.overflow = 'hidden';
+  overlay.style.cursor = 'move';
 
   const remoteVideo = document.createElement('video');
   remoteVideo.id = 'remoteVideo';
@@ -47,10 +52,18 @@ function createUi() {
   overlay.appendChild(localVideo);
 
   const endBtn = document.createElement('button');
-  endBtn.textContent = '✖';
+  endBtn.innerHTML = '📴';
+  endBtn.title = 'End Call';
   endBtn.style.position = 'absolute';
   endBtn.style.top = '5px';
   endBtn.style.right = '5px';
+  endBtn.style.background = '#dc3545';
+  endBtn.style.color = '#fff';
+  endBtn.style.border = 'none';
+  endBtn.style.borderRadius = '50%';
+  endBtn.style.width = '32px';
+  endBtn.style.height = '32px';
+  endBtn.style.cursor = 'pointer';
   endBtn.addEventListener('click', endCall);
   overlay.appendChild(endBtn);
   const controls = document.createElement('div');
@@ -83,6 +96,30 @@ function createUi() {
 
   document.body.appendChild(overlay);
 
+  let isDragging = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+  overlay.addEventListener('mousedown', e => {
+    if (e.target.tagName === 'BUTTON') return;
+    isDragging = true;
+    dragOffsetX = e.clientX - overlay.offsetLeft;
+    dragOffsetY = e.clientY - overlay.offsetTop;
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', stopDrag);
+  });
+
+  function onMouseMove(e) {
+    if (!isDragging) return;
+    overlay.style.left = `${e.clientX - dragOffsetX}px`;
+    overlay.style.top = `${e.clientY - dragOffsetY}px`;
+  }
+
+  function stopDrag() {
+    isDragging = false;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', stopDrag);
+  }
+
   const incoming = document.createElement('div');
   incoming.id = 'incomingCall';
   incoming.style.display = 'none';
@@ -98,8 +135,8 @@ function createUi() {
       <span id="callerName"></span> is calling...
     </div>
     <div style="display: flex; justify-content: center; gap: 10px;">
-      <button id="acceptCall" style="background: #28a745; color: white; padding: 8px 12px; border-radius: 6px;">✅ Accept</button>
-      <button id="declineCall" style="background: #dc3545; color: white; padding: 8px 12px; border-radius: 6px;">❌ Decline</button>
+      <button id="acceptCall" title="Accept" style="background:#28a745;color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;">📞</button>
+      <button id="declineCall" title="Decline" style="background:#dc3545;color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;">✖</button>
     </div>`;
 
   document.body.appendChild(incoming);
