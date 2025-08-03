@@ -1,6 +1,7 @@
 package in.lazygod.service;
 
 import in.lazygod.dto.GrantRightsRequest;
+import in.lazygod.dto.RightsInfo;
 import in.lazygod.enums.ACTIONS;
 import in.lazygod.enums.FileRights;
 import in.lazygod.enums.ResourceType;
@@ -18,6 +19,7 @@ import in.lazygod.security.SecurityContextHolderUtil;
 import in.lazygod.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class UserRightsService {
     private final ActivityLogRepository activityRepository;
 
     @Transactional
+    @CacheEvict(value = "rights", allEntries = true)
     public UserRights grantRights(GrantRightsRequest request) {
         User current = SecurityContextHolderUtil.getCurrentUser();
 
@@ -77,6 +80,7 @@ public class UserRightsService {
     }
 
     @Transactional
+    @CacheEvict(value = "rights", allEntries = true)
     public void revokeRights(String resourceId, ResourceType type) {
         User current = SecurityContextHolderUtil.getCurrentUser();
         if (type == ResourceType.FILE) {

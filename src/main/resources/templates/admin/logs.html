@@ -1,11 +1,108 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Logs</title>
+    <title>Server Logs</title>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .toolbar {
+            margin-bottom: 10px;
+        }
+
+        .log-box {
+            background-color: #1e1e1e;
+            color: #dcdcdc;
+            border: 1px solid #444;
+            padding: 15px;
+            max-height: 70vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        .log-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-box::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 4px;
+        }
+
+        select, label, button {
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .footer {
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
+
 <h2>Server Logs</h2>
-<pre th:text="${#strings.listJoin(logLines, '\n')}"></pre>
-<p><a th:href="@{/admin}">Back</a></p>
+
+<div class="toolbar">
+    <label for="interval">Auto-refresh every:</label>
+    <select id="interval">
+        <option value="0">Off</option>
+        <option value="5000">5 sec</option>
+        <option value="10000" selected>10 sec</option>
+        <option value="30000">30 sec</option>
+        <option value="60000">1 min</option>
+    </select>
+    <button onclick="refreshNow()">Reload Now</button>
+</div>
+
+<div id="logContent" class="log-box" th:utext="${#strings.listJoin(logLines, '<br/>')}">
+    Loading logs...
+</div>
+
+<div class="footer">
+    <p><a th:href="@{/admin}">← Back to Admin</a></p>
+</div>
+
+<script>
+    let intervalId = null;
+
+    function refreshNow() {
+        fetch('/admin/logs', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.text())
+            .then(html => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const newLog = tempDiv.querySelector('#logContent');
+                if (newLog) {
+                    document.getElementById('logContent').innerHTML = newLog.innerHTML;
+                }
+            });
+    }
+
+    function setAutoReload(interval) {
+        if (intervalId) clearInterval(intervalId);
+        if (interval > 0) {
+            intervalId = setInterval(refreshNow, interval);
+        }
+    }
+
+    document.getElementById('interval').addEventListener('change', function () {
+        setAutoReload(parseInt(this.value));
+    });
+
+    // Start auto-refresh with default value
+    setAutoReload(parseInt(document.getElementById('interval').value));
+</script>
+
 </body>
 </html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Drive</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        #main {
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #breadcrumb {
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            color: #6c757d;
+        }
+
+        #breadcrumb span {
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        #breadcrumb span:hover {
+            text-decoration: underline;
+        }
+
+        #actions {
+            margin-bottom: 15px;
+        }
+
+        #actions button {
+            margin-right: 10px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background 0.3s ease;
+        }
+
+        #actions button:hover {
+            background-color: #0056b3;
+        }
+
+        #contentList {
+            list-style: none;
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        li {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+
+        li.folder:hover {
+            background-color: #f1f3f5;
+            cursor: pointer;
+        }
+
+        .meta {
+            font-size: 0.8em;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .star {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            margin-left: 10px;
+            color: #ffc107;
+            transition: transform 0.2s;
+        }
+
+        .star:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <div id="breadcrumb"></div>
+    <div id="actions">
+        <button id="backBtn" onclick="goBack()">⬅️ Back</button>
+        <button onclick="document.getElementById('fileInput').click()">📤 Upload File</button>
+        <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this.files[0])" />
+        <button onclick="createFolder()">📁 New Folder</button>
+    </div>
+    <ul id="contentList"></ul>
+</div>
+
+<!-- Custom Input Modal -->
+<div id="inputModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3 id="inputModalTitle">Enter value</h3>
+        <input type="text" id="inputModalField" />
+        <div class="modal-actions">
+            <button id="inputModalOk">OK</button>
+            <button id="inputModalCancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>
+    function authJsonHeaders() {
+        const token = localStorage.getItem('accessToken');
+        return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    }
+
+    function authHeaders() {
+        const token = localStorage.getItem('accessToken');
+        return token ? { 'Authorization': 'Bearer ' + token } : {};
+    }
+
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+            const json = atob(padded);
+            return JSON.parse(json);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    const payload = parseJwt(localStorage.getItem('accessToken')) || {};
+    const username = payload.sub || payload.username || 'root';
+    const path = [{ id: username, name: username }];
+
+    function formatTime(ts) {
+        if (!ts) return '';
+        return new Date(ts).toLocaleString();
+    }
+
+    function updateBreadcrumb() {
+        const bc = document.getElementById('breadcrumb');
+        bc.innerHTML = '';
+        path.forEach((p, idx) => {
+            if (idx > 0) bc.append(' / ');
+            const span = document.createElement('span');
+            span.textContent = p.name;
+            span.style.cursor = 'pointer';
+            span.onclick = () => {
+                path.splice(idx + 1);
+                loadCurrentFolder();
+            };
+            bc.appendChild(span);
+        });
+    }
+
+    function toggleFavourite(type, id, btn) {
+        const fav = btn.textContent === '☆';
+        fetch(`/${type}/${id}/favourite?fav=${fav}`, { method: 'POST', headers: authJsonHeaders() })
+            .then(() => btn.textContent = fav ? '★' : '☆');
+    }
+
+    function renderContents(data) {
+        const list = document.getElementById('contentList');
+        list.innerHTML = '';
+        data.folders.forEach(folder => {
+            const li = document.createElement('li');
+            li.className = 'folder';
+            const left = document.createElement('div');
+            left.textContent = folder.displayName;
+            li.appendChild(left);
+            const right = document.createElement('div');
+            right.className = 'meta';
+            right.textContent = `Created: ${formatTime(folder.createdOn)} | Updated: ${formatTime(folder.updatedOn)}`;
+            const favBtn = document.createElement('button');
+            favBtn.className = 'star';
+            favBtn.textContent = '☆';
+            favBtn.onclick = (e) => { e.stopPropagation(); toggleFavourite('folder', folder.folderId, favBtn); };
+            right.appendChild(favBtn);
+            li.appendChild(right);
+            li.onclick = () => { path.push({ id: folder.folderId, name: folder.displayName }); loadCurrentFolder(); };
+            list.appendChild(li);
+        });
+        data.files.forEach(file => {
+            const li = document.createElement('li');
+            li.className = 'file';
+            const left = document.createElement('div');
+            left.textContent = file.displayName;
+            li.appendChild(left);
+            const right = document.createElement('div');
+            right.className = 'meta';
+            right.textContent = `Created: ${formatTime(file.createdOn)} | Updated: ${formatTime(file.updatedOn)}`;
+            const favBtn = document.createElement('button');
+            favBtn.className = 'star';
+            favBtn.textContent = '☆';
+            favBtn.onclick = (e) => { e.stopPropagation(); toggleFavourite('file', file.fileId, favBtn); };
+            right.appendChild(favBtn);
+            li.appendChild(right);
+            list.appendChild(li);
+        });
+    }
+
+    function loadCurrentFolder() {
+        updateBreadcrumb();
+        document.getElementById('backBtn').style.display = path.length > 1 ? 'inline-block' : 'none';
+        const current = path[path.length - 1];
+        let url = '/folder/list';
+        if (current.id) url += `?folderId=${encodeURIComponent(current.id)}`;
+        fetch(url, { headers: authJsonHeaders() })
+            .then(resp => resp.json())
+            .then(data => renderContents(data));
+    }
+
+    function goBack() {
+        if (path.length > 1) {
+            path.pop();
+            loadCurrentFolder();
+        }
+    }
+
+    async function createFolder() {
+        const name = await showInputModal('Folder name');
+        if (!name) return;
+        const current = path[path.length - 1];
+        let url = `/folder?folderName=${encodeURIComponent(name)}`;
+        if (current.id) url += `&parentId=${encodeURIComponent(current.id)}`;
+        fetch(url, { method: 'POST', headers: authJsonHeaders() })
+            .then(() => loadCurrentFolder());
+    }
+
+    function uploadFile(file) {
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        const current = path[path.length - 1];
+        if (current.id) formData.append('folderId', current.id);
+        fetch('/file/upload', { method: 'POST', headers: authHeaders(), body: formData })
+            .then(() => { document.getElementById('fileInput').value = ''; loadCurrentFolder(); });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCurrentFolder);
+
+
+function showInputModal(message = 'Enter value', defaultValue = '') {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('inputModal');
+    const title = document.getElementById('inputModalTitle');
+    const field = document.getElementById('inputModalField');
+    const okBtn = document.getElementById('inputModalOk');
+    const cancelBtn = document.getElementById('inputModalCancel');
+
+    title.textContent = message;
+    field.value = defaultValue;
+
+    modal.style.display = 'flex';
+    field.focus();
+
+    function cleanup() {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', handleOk);
+      cancelBtn.removeEventListener('click', handleCancel);
+    }
+
+    function handleOk() {
+      const value = field.value.trim();
+      cleanup();
+      resolve(value || null); // null if empty
+    }
+
+    function handleCancel() {
+      cleanup();
+      resolve(null);
+    }
+
+    okBtn.addEventListener('click', handleOk);
+    cancelBtn.addEventListener('click', handleCancel);
+
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleOk();
+      if (e.key === 'Escape') handleCancel();
+    });
+  });
+}
+</script>
+</body>
+</html>

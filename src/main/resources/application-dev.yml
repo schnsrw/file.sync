@@ -1,4 +1,7 @@
 spring:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
   datasource:
     url: jdbc:h2:mem:filedb;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
@@ -9,16 +12,25 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path : /h2-console
   data:
     mongodb:
       uri: mongodb://localhost:27017/filedb
+
+  devtools:
+    restart:
+      enabled : false
 logging:
   level:
     root: INFO
     in.lazygod: DEBUG
+  
 
 jwt:
-  secret : YourSecretKeyHereYourSecretKeyHere
+  secret : YourSecretKeyHereYourSecretKeyHereYourSecretKeyHereYourSecretKeyHere
   expiration:
     hr: 10
 
@@ -44,8 +56,16 @@ snowflake:
   node-id: 1
 
 encryption:
-  secret: ChangeThisSecretKey123
+  secret: 12345678901234567890123456789012
+
 
 ratelimit:
   enabled: true
   limit: 60
+
+cluster:
+  enabled: false
+
+etherpad:
+  api-url: http://localhost:9001/api/1
+  api-key: apikeyapikeyapikeyapikey

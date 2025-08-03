@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Table(name = "app_user")
-public class User {
+public class User implements Serializable {
     @Id
     private String userId;
 
@@ -43,6 +44,8 @@ public class User {
     private LocalDateTime createdOn;
     @JsonIgnore
     private LocalDateTime updatedOn;
+
+    private LocalDateTime lastSeen;
 
     @JsonIgnore
     @Column(nullable = false)

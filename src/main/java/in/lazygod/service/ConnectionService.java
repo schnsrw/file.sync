@@ -1,6 +1,8 @@
 package in.lazygod.service;
 
+import in.lazygod.dto.ConnectionRequestResponse;
 import in.lazygod.enums.ConnectionStatus;
+import in.lazygod.exception.NotFoundException;
 import in.lazygod.models.Connection;
 import in.lazygod.models.User;
 import in.lazygod.repositories.ConnectionRepository;
@@ -27,7 +29,7 @@ public class ConnectionService {
     public Connection sendRequest(String username) {
         User from = SecurityContextHolderUtil.getCurrentUser();
         User to = userRepository.findByUsername(username)
-                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("user.not.found"));
+                .orElseThrow(() -> new NotFoundException("user.not.found"));
 
         connectionRepository.findByFromUserIdAndToUserId(from.getUserId(), to.getUserId())
                 .ifPresent(c -> {
@@ -55,13 +57,13 @@ public class ConnectionService {
     public Connection acceptRequest(String connectionId) {
         User current = SecurityContextHolderUtil.getCurrentUser();
         Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("connection.not.found"));
+                .orElseThrow(() -> new NotFoundException("connection.not.found"));
 
         if (!connection.getToUserId().equals(current.getUserId())) {
             throw new in.lazygod.exception.ForbiddenException("not.authorized");
         }
 
-        connection.setStatus(ConnectionStatus.REJECTED);
+        connection.setStatus(ConnectionStatus.ACCEPTED);
         connection.setUpdatedOn(LocalDateTime.now());
         connectionRepository.save(connection);
 
@@ -77,7 +79,7 @@ public class ConnectionService {
     public Connection rejectRequest(String connectionId) {
         User current = SecurityContextHolderUtil.getCurrentUser();
         Connection connection = connectionRepository.findById(connectionId)
-                .orElseThrow(() -> new in.lazygod.exception.NotFoundException("connection.not.found"));
+                .orElseThrow(() -> new NotFoundException("connection.not.found"));
 
         if (!connection.getToUserId().equals(current.getUserId())) {
             throw new in.lazygod.exception.ForbiddenException("not.authorized");
@@ -95,8 +97,13 @@ public class ConnectionService {
         return connection;
     }
 
-    public List<Connection> pendingRequests() {
+    public List<ConnectionRequestResponse> pendingRequests() {
         User current = SecurityContextHolderUtil.getCurrentUser();
-        return connectionRepository.findByToUserIdAndStatus(current.getUserId(), ConnectionStatus.PENDING);
+        List<Connection> connections = connectionRepository.findByToUserIdAndStatus(current.getUserId(), ConnectionStatus.PENDING);
+        return connections.stream().map(c -> {
+            User from = userRepository.findById(c.getFromUserId())
+                    .orElseThrow(() -> new NotFoundException("user.not.found"));
+            return new ConnectionRequestResponse(c.getConnectionId(), from.getUsername(), from.getFullName());
+        }).toList();
     }
 }

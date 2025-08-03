@@ -7,6 +7,9 @@ server:
       enabled: true
 
 spring:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
   application:
     name: filemanager
   messages:
@@ -24,6 +27,9 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_URI:mongodb://localhost:27017/filedb}
+  devtools:
+    restart:
+      enabled : false
 
 logging:
   level:
@@ -62,3 +68,16 @@ encryption:
 ratelimit:
   enabled: true
   limit: 60
+cache:
+  ttl: 60
+
+roster:
+  ttl:
+    ms: 60000
+
+cluster:
+  enabled: false
+
+etherpad:
+  api-url: http://localhost:9001/api/1
+  api-key: apikey

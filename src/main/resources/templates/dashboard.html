@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        #sidebar {
+            width: 220px;
+            background-color: #1f2d3d;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #sidebar a {
+            padding: 14px 22px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1em;
+            font-weight: 500;
+            transition: background 0.25s ease, padding-left 0.2s;
+        }
+
+        #sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar .bottom-link {
+            margin-top: auto;
+        }
+        #sidebar a:hover,
+        #sidebar a.active {
+            background-color: #3e4e61;
+            padding-left: 26px;
+        }
+
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #dee2e6;
+        }
+
+        iframe#contentFrame {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #notification.show {
+            opacity: 1;
+        }
+    </style>
+    <script>
+        function loadPage(page, link) {
+            const iframe = document.getElementById('contentFrame');
+            const fullUrl = location.origin + page;
+            if (iframe.contentWindow.location.href === fullUrl) return;
+            iframe.src = page;
+            document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+        }
+
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), duration);
+        }
+    </script>
+</head>
+<body>
+<div id="sidebar">
+    <a href="#" class="active" onclick="loadPage('/chat', this); return false;">💬 Chat</a>
+    <a href="#" onclick="loadPage('/drive', this); return false;">📁 Drive</a>
+    <a href="#" onclick="loadPage('/notes', this); return false;">   Notes</a>
+    <a href="#" onclick="loadPage('/invitations', this); return false;">📨 Invitations</a>
+    <a href="#" class="bottom-link" onclick="logout(); return false;">🚪 Logout</a>
+</div>
+<div id="main">
+    <iframe id="contentFrame" src="/chat"></iframe>
+</div>
+<div id="notification"></div>
+<script src="/js/auth.js"></script>
+</body>
+</html>

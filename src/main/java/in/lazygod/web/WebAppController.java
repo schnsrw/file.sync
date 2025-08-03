@@ -1,0 +1,39 @@
+package in.lazygod.web;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class WebAppController {
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @GetMapping("/chat")
+    public String chatPage() {
+        return "chat";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboardPage() {
+        return "dashboard";
+    }
+
+    @GetMapping("/invitations")
+    public String invitationPage() {
+        return "invitations";
+    }
+  
+    @GetMapping("/notes")
+    public String notesPage() {
+        return "notes";
+}
+
+    @GetMapping("/drive")
+    public String drivePage() {
+        return "drive";
+
+    }
+}

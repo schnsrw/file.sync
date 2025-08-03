@@ -51,6 +51,7 @@ public class UserSessionManager {
             wrapper.removeSession(session);
             if (!wrapper.isOnline()) {
                 USERS.remove(user);
+                LastSeenManager.getInstance().setOffline(wrapper.getUsername());
                 log.info("User {} went offline", user);
             }
         });

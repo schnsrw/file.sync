@@ -2,53 +2,151 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Admin Panel</title>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f9fafc;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #3498db;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        .logout-link {
+            float: right;
+            font-size: 14px;
+        }
+
+        .clearfix::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+    </style>
 </head>
 <body>
-<h1>Admin Panel</h1>
 
-<h2>System Metrics</h2>
-<p>Memory Used: <span th:text="${metrics.memUsed}"></span> / <span th:text="${metrics.memTotal}"></span></p>
-<p>CPU Load: <span th:text="${metrics.cpuLoad}"></span>%</p>
+<div class="clearfix">
+    <h1>Admin Panel</h1>
+    <a th:href="@{/admin/logout}" class="logout-link">Logout</a>
+</div>
 
-<h2>Users</h2>
-<table border="1">
-    <tr><th>Username</th><th>Active</th><th>Action</th></tr>
-    <tr th:each="u : ${users}">
-        <td th:text="${u.username}"></td>
-        <td th:text="${u.active}"></td>
-        <td>
-            <form th:action="@{'/admin/users/' + ${u.userId} + '/toggle'}" method="post">
-                <button type="submit">Toggle</button>
-            </form>
-        </td>
-    </tr>
-</table>
+<div class="section">
+    <h2>System Metrics</h2>
+    <p>🧠 Memory Used: <strong th:text="${metrics.memUsed}"></strong> / <strong th:text="${metrics.memTotal}"></strong></p>
+    <p>⚙️ CPU Load: <strong th:text="${metrics.cpuLoad}"></strong>%</p>
+</div>
 
-<h2>WebSocket Sessions</h2>
-<table border="1">
-    <tr><th>Session Id</th><th>User</th><th>Action</th></tr>
-    <tr th:each="ws : ${wsSessions}">
-        <td th:text="${ws.key}"></td>
-        <td th:text="${ws.value}"></td>
-        <td>
-            <form th:action="@{'/admin/ws/' + ${ws.key} + '/close'}" method="post">
-                <button type="submit">Close</button>
-            </form>
-        </td>
-    </tr>
-</table>
+<div class="section">
+    <h2>Users</h2>
+    <table>
+        <tr><th>Username</th><th>Active</th><th>Action</th></tr>
+        <tr th:each="u : ${users}">
+            <td th:text="${u.username}"></td>
+            <td th:text="${u.active}"></td>
+            <td>
+                <form th:action="@{'/admin/users/' + ${u.userId} + '/toggle'}" method="post">
+                    <button type="submit">Toggle</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
 
-<form th:action="@{/admin/cache/cleanup}" method="post">
-    <button type="submit">Cleanup Caches</button>
-</form>
+<div class="section">
+    <h2>WebSocket Sessions</h2>
+    <table>
+        <tr><th>Session Id</th><th>User</th><th>Action</th></tr>
+        <tr th:each="ws : ${wsSessions}">
+            <td th:text="${ws.key}"></td>
+            <td th:text="${ws.value}"></td>
+            <td>
+                <form th:action="@{'/admin/ws/' + ${ws.key} + '/close'}" method="post">
+                    <button type="submit">Close</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
 
-<h2>Rate Limiting</h2>
-<p>Enabled: <span th:text="${rateLimitEnabled}"></span></p>
-<form th:action="@{/admin/ratelimit/toggle}" method="post">
-    <button type="submit">Toggle Rate Limit</button>
-</form>
+<div class="section">
+    <h2>Cache Management</h2>
+    <form th:action="@{/admin/cache/cleanup}" method="post">
+        <button type="submit">Cleanup Caches</button>
+    </form>
+</div>
 
-<p><a th:href="@{/admin/logs}">View Logs</a></p>
-<p><a th:href="@{/admin/logout}">Logout</a></p>
+<div class="section">
+    <h2>Rate Limiting</h2>
+    <p>🚦 Enabled: <strong th:text="${rateLimitEnabled}"></strong></p>
+    <form th:action="@{/admin/ratelimit/toggle}" method="post">
+        <button type="submit">Toggle Rate Limit</button>
+    </form>
+</div>
+
+<div class="actions">
+    <p><a th:href="@{/admin/logs}">📜 View Server Logs</a></p>
+</div>
+
 </body>
 </html>

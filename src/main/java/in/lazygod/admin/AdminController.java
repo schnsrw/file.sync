@@ -1,6 +1,6 @@
 package in.lazygod.admin;
 
-import in.lazygod.models.User;
+
 import in.lazygod.config.RateLimitProperties;
 import in.lazygod.repositories.UserRepository;
 import in.lazygod.stoageUtils.StorageFactory;
