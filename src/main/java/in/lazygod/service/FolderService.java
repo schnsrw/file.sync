@@ -87,7 +87,8 @@ public class FolderService {
                 ? List.of(UserRights.builder()
                 .urId(idGenerator.nextId())
                 .userId(user.getUserId())
-                .parentFolderId(folder.getFolderId())
+                .fileId(folder.getFolderId())
+                .parentFolderId(parentFolder.getFolderId())
                 .rightsType(FileRights.ADMIN)
                 .resourceType(ResourceType.FOLDER)
                 .isFavourite(false)
@@ -98,7 +99,8 @@ public class FolderService {
                 : parentRights.stream().map(r -> UserRights.builder()
                 .urId(idGenerator.nextId())
                 .userId(r.getUserId())
-                .parentFolderId(folder.getFolderId())
+                .fileId(folder.getFolderId())
+                .parentFolderId(parentFolder.getFolderId())
                 .rightsType(
                         r.getUserId().equals(user.getUserId()) && r.getRightsType() == FileRights.ADMIN
                                 ? FileRights.ADMIN
@@ -154,7 +156,7 @@ public class FolderService {
 
         Folder folder = getFolder(targetId);
 
-        rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), folder.getFolderId())
+        rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), folder.getFolderId(),ResourceType.FOLDER)
                 .orElseThrow(() -> new in.lazygod.exception.ForbiddenException("resource.not.authorized"));
 
         Pageable pageable = PageRequest.of(page, size);
@@ -162,7 +164,7 @@ public class FolderService {
         // Fetch sub-folders visible to user
         var allSubFolders = folderRepository.findByParentFolder(folder);
         var accessibleFolders = allSubFolders.stream()
-                .filter(f -> rightsRepository.findByUserIdAndParentFolderId(user.getUserId(), f.getFolderId()).isPresent())
+                .filter(f -> rightsRepository.findByUserIdAndFileIdAndResourceType(user.getUserId(), f.getFolderId(),ResourceType.FOLDER).isPresent())
                 .skip((long) page * size)
                 .limit(size)
                 .toList();

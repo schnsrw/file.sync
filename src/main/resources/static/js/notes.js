@@ -1,5 +1,22 @@
-const padBase = 'http://localhost:9001/p/';
-let currentNote = null;
+const padBase = 'http://localhost:9001';
+let currentNoteId = null;
+const iframe = document.getElementById('padFrame');
+
+document.getElementById('notes').addEventListener('click', async (e) => {
+    const li = e.target.closest('li[data-note-id]');
+    if (!li) return;
+
+    const noteId = li.dataset.noteId;
+    if (noteId === currentNoteId) return;
+
+    await saveCurrentNote();
+    loadNote(noteId);
+
+    // Highlight selected note
+    document.querySelectorAll('#noteList li').forEach(el => el.classList.remove('selected'));
+    li.classList.add('selected');
+});
+
 
 async function refreshTokens() {
   const refreshToken = localStorage.getItem('refreshToken');
@@ -40,35 +57,106 @@ async function api(path, method = 'GET', body) {
 }
 
 function loadNotes() {
-  api('/notes').then(notes => {
+  api('/note').then(notes => {
     const list = document.getElementById('notes');
-    list.innerHTML = '';
-    notes.forEach(n => {
+    list.innerHTML = ''; // clear old items
+    notes.forEach(note => {
       const li = document.createElement('li');
-      li.textContent = n.title;
-      li.onclick = () => openNote(n);
+      li.textContent = note.title;
+      li.dataset.noteId = note.noteId;
       list.appendChild(li);
     });
   });
 }
 
-function openNote(note) {
-  currentNote = note;
-  document.getElementById('padFrame').src = padBase + note.padId;
+function loadNote(noteId) {
+  currentNoteId = noteId;
+  iframe.src = padBase+`/p/note-${noteId}`;
 }
 
-document.getElementById('newNote').addEventListener('click', () => {
-  const title = prompt('Note title');
-  if (!title) return;
-  api('/notes', 'POST', { title }).then(note => {
-    loadNotes();
-    openNote(note);
+async function saveCurrentNote() {
+  if (!currentNoteId) return;
+  try {
+    await api(`/note/${currentNoteId}/save`, 'POST');
+    console.log('Note saved:', currentNoteId);
+  } catch (e) {
+    console.error('Auto-save failed:', e);
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  loadNotes();
+
+  document.getElementById('newNote').addEventListener('click', async () => {
+    const title = await showInputModal('Note title');
+    if (!title) return;
+    api('/note', 'POST', { title }).then(note => {
+      loadNotes();
+      loadNote(note.noteId);
+    });
+  });
+
+  document.getElementById('notes').addEventListener('click', async (e) => {
+    const li = e.target.closest('li[data-note-id]');
+    if (!li) return;
+
+    const noteId = li.dataset.noteId;
+    if (noteId === currentNoteId) return;
+
+    await saveCurrentNote();
+    loadNote(noteId);
+  });
+
+  document.addEventListener('keydown', async (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      await saveCurrentNote();
+    }
+  });
+
+  window.addEventListener('beforeunload', async () => {
+    await saveCurrentNote();
   });
 });
 
-document.getElementById('saveNote').addEventListener('click', () => {
-  if (!currentNote) return;
-  api(`/notes/${currentNote.noteId}/save`, 'POST').then(() => alert('Saved'));
-});
+function showInputModal(message = 'Enter value', defaultValue = '') {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('inputModal');
+    const title = document.getElementById('inputModalTitle');
+    const field = document.getElementById('inputModalField');
+    const okBtn = document.getElementById('inputModalOk');
+    const cancelBtn = document.getElementById('inputModalCancel');
 
-document.addEventListener('DOMContentLoaded', loadNotes);
+    title.textContent = message;
+    field.value = defaultValue;
+
+    modal.style.display = 'flex';
+    field.focus();
+
+    function cleanup() {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', handleOk);
+      cancelBtn.removeEventListener('click', handleCancel);
+    }
+
+    function handleOk() {
+      const value = field.value.trim();
+      cleanup();
+      resolve(value || null); // null if empty
+    }
+
+    function handleCancel() {
+      cleanup();
+      resolve(null);
+    }
+
+    okBtn.addEventListener('click', handleOk);
+    cancelBtn.addEventListener('click', handleCancel);
+
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleOk();
+      if (e.key === 'Escape') handleCancel();
+    });
+  });
+}

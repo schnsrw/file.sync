@@ -3,48 +3,106 @@
 <head>
     <meta charset="UTF-8" />
     <title>Drive</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
         #main {
             padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
         #breadcrumb {
             margin-bottom: 15px;
+            font-size: 0.95em;
+            color: #6c757d;
         }
+
+        #breadcrumb span {
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        #breadcrumb span:hover {
+            text-decoration: underline;
+        }
+
         #actions {
             margin-bottom: 15px;
         }
+
         #actions button {
             margin-right: 10px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background 0.3s ease;
         }
+
+        #actions button:hover {
+            background-color: #0056b3;
+        }
+
         #contentList {
             list-style: none;
             padding: 0;
+            overflow-y: auto;
+            flex: 1;
         }
+
         li {
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 8px;
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.2s ease;
         }
-        li.folder {
+
+        li.folder:hover {
+            background-color: #f1f3f5;
             cursor: pointer;
         }
+
         .meta {
             font-size: 0.8em;
             color: #666;
             display: flex;
             align-items: center;
         }
+
         .star {
             cursor: pointer;
             background: none;
             border: none;
             font-size: 1.2em;
             margin-left: 10px;
+            color: #ffc107;
+            transition: transform 0.2s;
+        }
+
+        .star:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -53,12 +111,25 @@
     <div id="breadcrumb"></div>
     <div id="actions">
         <button id="backBtn" onclick="goBack()">⬅️ Back</button>
-        <button onclick="document.getElementById('fileInput').click()">Upload File</button>
+        <button onclick="document.getElementById('fileInput').click()">📤 Upload File</button>
         <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this.files[0])" />
-        <button onclick="createFolder()">New Folder</button>
+        <button onclick="createFolder()">📁 New Folder</button>
     </div>
     <ul id="contentList"></ul>
 </div>
+
+<!-- Custom Input Modal -->
+<div id="inputModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3 id="inputModalTitle">Enter value</h3>
+        <input type="text" id="inputModalField" />
+        <div class="modal-actions">
+            <button id="inputModalOk">OK</button>
+            <button id="inputModalCancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script src="/js/auth.js"></script>
 <script>
     function authJsonHeaders() {
@@ -172,8 +243,8 @@
         }
     }
 
-    function createFolder() {
-        const name = prompt('Folder name');
+    async function createFolder() {
+        const name = await showInputModal('Folder name');
         if (!name) return;
         const current = path[path.length - 1];
         let url = `/folder?folderName=${encodeURIComponent(name)}`;
@@ -193,6 +264,48 @@
     }
 
     document.addEventListener('DOMContentLoaded', loadCurrentFolder);
+
+
+function showInputModal(message = 'Enter value', defaultValue = '') {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('inputModal');
+    const title = document.getElementById('inputModalTitle');
+    const field = document.getElementById('inputModalField');
+    const okBtn = document.getElementById('inputModalOk');
+    const cancelBtn = document.getElementById('inputModalCancel');
+
+    title.textContent = message;
+    field.value = defaultValue;
+
+    modal.style.display = 'flex';
+    field.focus();
+
+    function cleanup() {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', handleOk);
+      cancelBtn.removeEventListener('click', handleCancel);
+    }
+
+    function handleOk() {
+      const value = field.value.trim();
+      cleanup();
+      resolve(value || null); // null if empty
+    }
+
+    function handleCancel() {
+      cleanup();
+      resolve(null);
+    }
+
+    okBtn.addEventListener('click', handleOk);
+    cancelBtn.addEventListener('click', handleCancel);
+
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleOk();
+      if (e.key === 'Escape') handleCancel();
+    });
+  });
+}
 </script>
 </body>
 </html>

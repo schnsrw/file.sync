@@ -5,29 +5,135 @@
     <title>Notes</title>
     <link rel="stylesheet" href="/css/dashboard.css" />
     <style>
-        #main { display: flex; height: 100vh; }
-        #noteList { width: 250px; border-right: 1px solid #ddd; padding: 10px; overflow-y:auto; }
-        #editor { flex: 1; display: flex; flex-direction: column; }
-        #padFrame { flex: 1; width: 100%; border: none; }
-        #controls { padding: 10px; border-top: 1px solid #ddd; background: #fff; }
-        ul { list-style: none; padding: 0; }
-        li { padding: 6px; cursor: pointer; }
-        li:hover { background: #f1f1f1; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        #main {
+            display: flex;
+            height: 100vh;
+        }
+
+        #noteList {
+            width: 260px;
+            border-right: 1px solid #dee2e6;
+            background-color: #ffffff;
+            padding: 12px;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
+        }
+
+        #noteList button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background 0.3s ease;
+        }
+
+        #noteList button:hover {
+            background-color: #0056b3;
+        }
+
+        #noteList ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #noteList li {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        #noteList li:hover {
+            background-color: #f1f3f5;
+        }
+
+        #editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+
+        #padFrame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background-color: #fdfdfd;
+        }
+
+        #controls {
+            padding: 10px 16px;
+            border-top: 1px solid #dee2e6;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: flex-end;
+        }
+#noteList li.selected {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+        #controls button {
+            padding: 8px 16px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #controls button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
 <div id="main">
     <div id="noteList">
-        <button id="newNote">New Note</button>
+        <button id="newNote">➕ New Note</button>
         <ul id="notes"></ul>
     </div>
     <div id="editor">
         <iframe id="padFrame"></iframe>
+        <!--
         <div id="controls">
-            <button id="saveNote">Save</button>
+            <button id="saveNote">💾 Save</button>
+        </div> -->
+    </div>
+</div>
+
+<!-- Custom Input Modal -->
+<div id="inputModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3 id="inputModalTitle">Enter value</h3>
+        <input type="text" id="inputModalField" />
+        <div class="modal-actions">
+            <button id="inputModalOk">OK</button>
+            <button id="inputModalCancel">Cancel</button>
         </div>
     </div>
 </div>
+
 <script src="/js/auth.js"></script>
 <script src="/js/notes.js"></script>
 </body>

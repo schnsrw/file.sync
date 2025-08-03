@@ -19,6 +19,10 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/filedb
+
+  devtools:
+    restart:
+      enabled : false
 logging:
   level:
     root: INFO
@@ -54,6 +58,7 @@ snowflake:
 encryption:
   secret: 12345678901234567890123456789012
 
+
 ratelimit:
   enabled: true
   limit: 60
@@ -63,4 +68,4 @@ cluster:
 
 etherpad:
   api-url: http://localhost:9001/api/1
-  api-key: apikey
+  api-key: apikeyapikeyapikeyapikey

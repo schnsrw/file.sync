@@ -295,3 +295,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+function showInputModal(message = 'Enter value', defaultValue = '') {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('inputModal');
+    const title = document.getElementById('inputModalTitle');
+    const field = document.getElementById('inputModalField');
+    const okBtn = document.getElementById('inputModalOk');
+    const cancelBtn = document.getElementById('inputModalCancel');
+
+    title.textContent = message;
+    field.value = defaultValue;
+
+    modal.style.display = 'flex';
+    field.focus();
+
+    function cleanup() {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', handleOk);
+      cancelBtn.removeEventListener('click', handleCancel);
+    }
+
+    function handleOk() {
+      const value = field.value.trim();
+      cleanup();
+      resolve(value || null); // null if empty
+    }
+
+    function handleCancel() {
+      cleanup();
+      resolve(null);
+    }
+
+    okBtn.addEventListener('click', handleOk);
+    cancelBtn.addEventListener('click', handleCancel);
+
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleOk();
+      if (e.key === 'Escape') handleCancel();
+    });
+  });
+}
+

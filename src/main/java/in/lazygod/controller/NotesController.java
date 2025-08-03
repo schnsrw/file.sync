@@ -15,11 +15,11 @@ import java.util.List;
  * REST endpoints for managing notes.
  */
 @RestController
-@RequestMapping("/notes")
+@RequestMapping("/note")
 @SecurityRequirement(name = "bearer-key")
 @RequiredArgsConstructor
 @Slf4j
-public class NoteController {
+public class NotesController {
 
     private final NoteService noteService;
 
