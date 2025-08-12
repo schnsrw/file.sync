@@ -36,4 +36,9 @@ public class WebAppController {
         return "drive";
 
     }
+
+    @GetMapping("/translate")
+    public String translatePage() {
+        return "translate";
+    }
 }

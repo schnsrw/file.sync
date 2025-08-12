@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Translate Document</title>
+    <style>
+        body {font-family: Arial, sans-serif; margin: 40px;}
+        #loading {display:none;}
+        #result {display:none; margin-top:20px;}
+    </style>
+</head>
+<body>
+<h2>Translate Document</h2>
+<form id="translateForm">
+    <input type="file" id="file" name="file" required />
+    <input type="text" id="targetLang" name="targetLang" placeholder="Target language (e.g. fr)" required />
+    <button type="submit">Translate</button>
+</form>
+<div id="loading">Translating...</div>
+<div id="result">
+    <a id="downloadLink">Download translated file</a>
+</div>
+<script src="/js/translate.js"></script>
+</body>
+</html>
