@@ -44,6 +44,12 @@ services:
     volumes:
       - redis_data:/data
 
+  lingva:
+    image: hectorm/lingva-translate:latest
+    restart: always
+    ports:
+      - "3000:3000"
+
   etherpad:
     image: etherpad/etherpad
     restart: always
